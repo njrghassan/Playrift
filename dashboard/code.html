@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;400;600;800&amp;family=Space+Grotesk:wght@300;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-primary-fixed": "#07006c",
+              "on-surface": "#dae2fd",
+              "error": "#ffb4ab",
+              "surface-bright": "#31394d",
+              "surface-container-highest": "#2d3449",
+              "on-tertiary-container": "#452000",
+              "surface-container-low": "#131b2e",
+              "surface-tint": "#c0c1ff",
+              "surface": "#0b1326",
+              "on-secondary-fixed": "#0d1c2d",
+              "secondary-fixed-dim": "#b9c8de",
+              "primary-fixed": "#e1e0ff",
+              "on-tertiary-fixed": "#301400",
+              "on-primary-fixed-variant": "#2f2ebe",
+              "on-background": "#dae2fd",
+              "on-tertiary": "#4f2500",
+              "primary-fixed-dim": "#c0c1ff",
+              "on-secondary": "#233143",
+              "on-primary": "#1000a9",
+              "surface-container": "#171f33",
+              "surface-container-lowest": "#060e20",
+              "on-tertiary-fixed-variant": "#703700",
+              "error-container": "#93000a",
+              "on-primary-container": "#0d0096",
+              "on-secondary-container": "#a7b6cc",
+              "primary": "#c0c1ff",
+              "tertiary-container": "#d97721",
+              "surface-variant": "#2d3449",
+              "secondary": "#b9c8de",
+              "tertiary-fixed-dim": "#ffb783",
+              "outline-variant": "#464554",
+              "tertiary": "#ffb783",
+              "inverse-on-surface": "#283044",
+              "on-error": "#690005",
+              "background": "#0b1326",
+              "on-secondary-fixed-variant": "#39485a",
+              "on-error-container": "#ffdad6",
+              "secondary-fixed": "#d4e4fa",
+              "surface-container-high": "#222a3d",
+              "inverse-primary": "#494bd6",
+              "primary-container": "#8083ff",
+              "surface-dim": "#0b1326",
+              "on-surface-variant": "#c7c4d7",
+              "tertiary-fixed": "#ffdcc5",
+              "secondary-container": "#39485a",
+              "outline": "#908fa0",
+              "inverse-surface": "#dae2fd"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Manrope"],
+              "label": ["Space Grotesk"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .obsidian-glass {
+        background: rgba(23, 31, 51, 0.4);
+        backdrop-filter: blur(24px);
+      }
+      .drift-gradient {
+        background: linear-gradient(180deg, rgba(192, 193, 255, 0.15) 0%, rgba(192, 193, 255, 0) 100%);
+      }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopNavBar -->
+<header class="bg-[#0b1326] dark:bg-[#0b1326] docked full-width top-0 sticky z-50 bg-[#161e2f] shadow-[0_20px_40px_rgba(7,0,108,0.15)] font-['Manrope'] antialiased tracking-tight">
+<nav class="flex justify-between items-center h-20 px-8 w-full max-w-[1440px] mx-auto">
+<div class="flex items-center gap-12">
+<span class="text-2xl font-black tracking-tighter text-[#c0c1ff] dark:text-[#c0c1ff]">Playrift</span>
+<div class="hidden md:flex items-center gap-8">
+<a class="text-slate-400 font-medium hover:text-slate-100 transition-colors" href="#">Features</a>
+<a class="text-slate-400 font-medium hover:text-slate-100 transition-colors" href="#">How it Works</a>
+<a class="text-[#c0c1ff] font-bold border-b-2 border-[#c0c1ff] pb-1" href="#">Dashboard</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="flex items-center gap-2 px-6 py-2.5 rounded text-[#c0c1ff] dark:text-[#c0c1ff] border border-primary/20 hover:bg-[#8083ff]/10 hover:shadow-[0_0_15px_rgba(192,193,255,0.3)] transition-all duration-300 active:scale-95 transform">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">bolt</span>
+<span class="font-label text-sm uppercase tracking-wider">Connect Steam</span>
+</button>
+</div>
+</nav>
+</header>
+<main class="max-w-[1440px] mx-auto px-8 py-12">
+<!-- Hero Section: Discovery Radar -->
+<section class="mb-20">
+<div class="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
+<div class="max-w-2xl">
+<h2 class="font-label text-tertiary text-sm tracking-[0.2em] uppercase mb-4">AI Analysis Engine</h2>
+<h1 class="text-5xl font-extrabold tracking-tighter mb-6 leading-none">Discovery Radar</h1>
+<p class="text-on-surface-variant text-lg leading-relaxed max-w-xl">
+                        Your behavioral drift indicates a shift from <span class="text-primary font-bold">Competitive FPS</span> towards <span class="text-tertiary font-bold">Atmospheric Roguelikes</span>. 
+                    </p>
+</div>
+<div class="flex gap-4">
+<div class="bg-surface-container-low p-4 rounded-lg flex flex-col items-end">
+<span class="font-label text-xs text-secondary-fixed-dim uppercase">Core DNA Match</span>
+<span class="text-3xl font-black text-primary tracking-tighter">88.4%</span>
+</div>
+<div class="bg-surface-container-low p-4 rounded-lg flex flex-col items-end">
+<span class="font-label text-xs text-secondary-fixed-dim uppercase">Drift Velocity</span>
+<span class="text-3xl font-black text-tertiary tracking-tighter">+12.5%</span>
+</div>
+</div>
+</div>
+<!-- Bento Grid - Behavioral Metrics -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+<!-- Large Chart Area -->
+<div class="md:col-span-8 bg-surface-container rounded-xl p-8 relative overflow-hidden group">
+<div class="absolute inset-0 drift-gradient opacity-20"></div>
+<div class="relative z-10">
+<div class="flex justify-between items-start mb-12">
+<div>
+<h3 class="text-xl font-bold mb-1">Playstyle Trajectory</h3>
+<p class="text-sm text-on-surface-variant">Last 90 days vs All-time baseline</p>
+</div>
+<div class="flex gap-2">
+<span class="flex items-center gap-2 text-xs font-label text-primary"><span class="w-2 h-2 rounded-full bg-primary"></span> CORE</span>
+<span class="flex items-center gap-2 text-xs font-label text-tertiary"><span class="w-2 h-2 rounded-full bg-tertiary"></span> RECENT</span>
+</div>
+</div>
+<!-- Abstract Chart Representation -->
+<div class="h-64 flex items-end justify-between gap-4">
+<div class="w-full bg-surface-container-highest rounded-t-lg h-[40%] relative group/bar">
+<div class="absolute bottom-0 left-0 w-full bg-primary/40 h-[70%] rounded-t-lg transition-all duration-500 group-hover/bar:h-[85%]"></div>
+</div>
+<div class="w-full bg-surface-container-highest rounded-t-lg h-[65%] relative group/bar">
+<div class="absolute bottom-0 left-0 w-full bg-primary/40 h-[60%] rounded-t-lg transition-all duration-500 group-hover/bar:h-[75%]"></div>
+</div>
+<div class="w-full bg-surface-container-highest rounded-t-lg h-[80%] relative group/bar">
+<div class="absolute bottom-0 left-0 w-full bg-primary/40 h-[90%] rounded-t-lg transition-all duration-500 group-hover/bar:h-[95%]"></div>
+</div>
+<div class="w-full bg-surface-container-highest rounded-t-lg h-[55%] relative group/bar">
+<div class="absolute bottom-0 left-0 w-full bg-tertiary/40 h-[40%] rounded-t-lg transition-all duration-500 group-hover/bar:h-[50%]"></div>
+</div>
+<div class="w-full bg-surface-container-highest rounded-t-lg h-[45%] relative group/bar">
+<div class="absolute bottom-0 left-0 w-full bg-tertiary/40 h-[80%] rounded-t-lg transition-all duration-500 group-hover/bar:h-[90%]"></div>
+</div>
+<div class="w-full bg-surface-container-highest rounded-t-lg h-[90%] relative group/bar">
+<div class="absolute bottom-0 left-0 w-full bg-tertiary/40 h-[95%] rounded-t-lg transition-all duration-500 group-hover/bar:h-[100%]"></div>
+</div>
+</div>
+<div class="flex justify-between mt-4 font-label text-[10px] text-outline tracking-widest uppercase">
+<span>Strategic</span>
+<span>Reflex</span>
+<span>Social</span>
+<span>Grind</span>
+<span>Immersion</span>
+<span>Creative</span>
+</div>
+</div>
+</div>
+<!-- HUD Data Block -->
+<div class="md:col-span-4 flex flex-col gap-6">
+<div class="bg-surface-container-high p-6 rounded-xl border-l-4 border-primary shadow-lg">
+<div class="flex items-center gap-3 mb-4">
+<span class="material-symbols-outlined text-primary-fixed-dim">psychology</span>
+<h4 class="font-label text-sm uppercase tracking-widest text-secondary-fixed-dim">AI Prediction</h4>
+</div>
+<p class="text-sm text-on-surface-variant leading-relaxed">
+                            Detected rising preference for <span class="text-on-surface font-semibold">emergent narratives</span>. Your next rift suggestion focuses on unscripted consequences.
+                        </p>
+</div>
+<div class="bg-surface-container p-6 rounded-xl flex-grow flex flex-col justify-center text-center">
+<span class="material-symbols-outlined text-4xl text-tertiary mb-2">auto_awesome</span>
+<h4 class="text-2xl font-black text-on-surface">Rift Ready</h4>
+<p class="text-xs font-label text-outline uppercase mt-2">3 New Matches Optimized</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Recent Sessions -->
+<section class="mb-20">
+<div class="flex items-center justify-between mb-8">
+<h3 class="text-3xl font-bold tracking-tight">Recent Sessions</h3>
+<button class="text-sm font-label text-primary-fixed-dim flex items-center gap-1 hover:text-primary transition-colors">
+                    VIEW HISTORY <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+<div class="space-y-4">
+<!-- Session Row 1 -->
+<div class="group bg-surface-container-low hover:bg-surface-container-highest transition-all duration-300 p-4 rounded-lg flex items-center justify-between">
+<div class="flex items-center gap-6">
+<div class="w-16 h-16 rounded overflow-hidden bg-surface-container-highest shrink-0">
+<img class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" data-alt="Cyberpunk style game landscape" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCbmMrCtkDrlgnEkKnlklmg8ShcXXJGdGkfucwutHQhjCPl6afI6Q-hN8gs2F6gCeNdNky8zJ7Y2yNORqWo1MSU1gPn7z871-lVdxc6wwM89tVKeofSOAEqlYcMXJDerAyRAhpbnWQ04vdzEyy3rn7ny8kYOnN0Gchgfzhp7WJzQopeJwt8l_VSU9oxkCRxljc5xnHNBC_KstXS4-LNJ8L0gULUBv3Qym1ofldM71sK08H7HGFEuxRU5xZdvvR4qwBd0YxJQADMFTFf"/>
+</div>
+<div>
+<h4 class="font-bold text-lg">Neon Abyss: Infinite</h4>
+<div class="flex gap-4 mt-1">
+<span class="text-xs font-label text-outline uppercase tracking-wider">Yesterday</span>
+<span class="text-xs font-label text-primary-fixed-dim uppercase tracking-wider">4.5 Hours</span>
+</div>
+</div>
+</div>
+<div class="hidden md:flex gap-8 items-center pr-8">
+<div class="text-right">
+<div class="text-[10px] font-label text-outline uppercase">Achievements</div>
+<div class="text-on-surface font-bold">12 / 40</div>
+</div>
+<div class="text-right">
+<div class="text-[10px] font-label text-outline uppercase">AI Focus</div>
+<div class="text-tertiary font-bold">+12.4 Reflex</div>
+</div>
+<button class="p-2 rounded-full hover:bg-surface-container-lowest transition-colors">
+<span class="material-symbols-outlined text-outline">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Session Row 2 -->
+<div class="group bg-surface-container-low hover:bg-surface-container-highest transition-all duration-300 p-4 rounded-lg flex items-center justify-between">
+<div class="flex items-center gap-6">
+<div class="w-16 h-16 rounded overflow-hidden bg-surface-container-highest shrink-0">
+<img class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" data-alt="Deep space galaxy background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCX2SBM5eeiDgZC5P5OVltss8ygjUQpsP7NEFr_IqLBwZ_Zz6HY-3AlO1y1SnjTFPrRDSFhJ9yrq089CiC4ZuHYqq-SwrGnZYZHgOy2vN1X9NpPWaBejVg18IEY0kB5lfDdYOngW5DL1S0of3nNWX6Rbpo9ZIx3v1uYVUNO5kDLE-az7XlA3hUDN3uX8Ijt2Vx5etSFL6QAdCSPHtYs7QLttxu4Z1Qt-LqMDvSTLfKyUoR9rEp5fJBQJWNkMKLfWdYjWlT91BVOgr2U"/>
+</div>
+<div>
+<h4 class="font-bold text-lg">Stellaris: Overlord</h4>
+<div class="flex gap-4 mt-1">
+<span class="text-xs font-label text-outline uppercase tracking-wider">3 Days Ago</span>
+<span class="text-xs font-label text-primary-fixed-dim uppercase tracking-wider">12.2 Hours</span>
+</div>
+</div>
+</div>
+<div class="hidden md:flex gap-8 items-center pr-8">
+<div class="text-right">
+<div class="text-[10px] font-label text-outline uppercase">Achievements</div>
+<div class="text-on-surface font-bold">88 / 120</div>
+</div>
+<div class="text-right">
+<div class="text-[10px] font-label text-outline uppercase">AI Focus</div>
+<div class="text-primary font-bold">+5.2 Strategy</div>
+</div>
+<button class="p-2 rounded-full hover:bg-surface-container-lowest transition-colors">
+<span class="material-symbols-outlined text-outline">more_vert</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Rift Suggestions -->
+<section>
+<div class="flex items-center justify-between mb-8">
+<div>
+<h3 class="text-3xl font-bold tracking-tight">Rift Suggestions</h3>
+<p class="text-on-surface-variant text-sm mt-1">Cross-analyzed with your behavioral drift trends.</p>
+</div>
+<div class="flex gap-2">
+<button class="p-2 rounded-lg bg-surface-container border border-outline-variant/20 hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined">tune</span>
+</button>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Card 1 -->
+<div class="group bg-surface-container rounded-xl overflow-hidden shadow-2xl flex flex-col hover:translate-y-[-4px] transition-transform duration-300">
+<div class="h-48 relative">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="Retro hardware and blue neon lights" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCI3se8d5ta_ciECU-ftef3CWOG4fb_16x14EZ-SPtIHQOm32wiI5WEwB6ff8hBGWAkMDk6-FO6HIJKe009lQaPJFIaG0jnT5qIneh9XBY92ucCJf9DiNsgbwRqcRt9_6-HJeGqpUfvH3kKSUsZCxXeMgS3c2Q5UNLBZ-GnVjRuiOJ-KNzUonDI2AB3dj3jkTj3MhIg2FuY1tIFo3SXOxBll-vkqys12jjP_0Vqf8Pg75zZ5xEL-_JqfrsPtC9wDmbw2xWmL_s6kFT8"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container to-transparent"></div>
+<div class="absolute bottom-4 left-4 flex gap-2">
+<span class="bg-primary-container/80 text-on-primary-container px-3 py-1 rounded-full text-[10px] font-label font-bold uppercase backdrop-blur-md">98% Match</span>
+<span class="bg-surface-container-highest/80 text-on-surface px-3 py-1 rounded-full text-[10px] font-label uppercase backdrop-blur-md">Atmospheric</span>
+</div>
+</div>
+<div class="p-6 flex-grow flex flex-col">
+<h4 class="text-xl font-bold mb-2">Protocol: Silence</h4>
+<p class="text-on-surface-variant text-sm mb-6 leading-relaxed">
+                            A minimalist roguelike that mirrors your recent preference for low-reflex, high-consequence decision making.
+                        </p>
+<div class="mt-auto flex justify-between items-center pt-6 border-t border-outline-variant/10">
+<span class="text-lg font-black text-on-surface">$24.99</span>
+<button class="bg-primary text-on-primary px-4 py-2 rounded font-label text-xs uppercase font-bold tracking-widest hover:shadow-[0_0_15px_rgba(192,193,255,0.4)] transition-all active:scale-95">Explore Rift</button>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="group bg-surface-container rounded-xl overflow-hidden shadow-2xl flex flex-col hover:translate-y-[-4px] transition-transform duration-300">
+<div class="h-48 relative">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="Minimalist geometric space architecture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBDn_eEgQtn9GaneiLnIrYYAJfQRluk2eYcxi5UFpHxHOxskWhh8-eqXIg6xkfwH2Fy85clnCUd908hutlHmG25UYpYya4LltbLI5NIpAnnGU51v3Siq6sGA3QIXcow7P-NQF-FNNkV-4Tfh1s7uhEMo_Wywiw0OjyWxRYqiuhGXsBnNYYvOgdSskalJN94OfKHNCIDh6I8duMkvTH0opxwLBXsggKFX1hy18hgQZmu86QYJxYTd748EvWgXR4IyIVWNXoeSLeqLqic"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container to-transparent"></div>
+<div class="absolute bottom-4 left-4 flex gap-2">
+<span class="bg-primary-container/80 text-on-primary-container px-3 py-1 rounded-full text-[10px] font-label font-bold uppercase backdrop-blur-md">92% Match</span>
+<span class="bg-surface-container-highest/80 text-on-surface px-3 py-1 rounded-full text-[10px] font-label uppercase backdrop-blur-md">Tactical</span>
+</div>
+</div>
+<div class="p-6 flex-grow flex flex-col">
+<h4 class="text-xl font-bold mb-2">Obelisk Zero</h4>
+<p class="text-on-surface-variant text-sm mb-6 leading-relaxed">
+                            Deep strategic management with a focus on long-term sustainability, appealing to your core 'Empire Builder' DNA.
+                        </p>
+<div class="mt-auto flex justify-between items-center pt-6 border-t border-outline-variant/10">
+<span class="text-lg font-black text-tertiary">FREE-TO-PLAY</span>
+<button class="bg-primary text-on-primary px-4 py-2 rounded font-label text-xs uppercase font-bold tracking-widest hover:shadow-[0_0_15px_rgba(192,193,255,0.4)] transition-all active:scale-95">Explore Rift</button>
+</div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="group bg-surface-container rounded-xl overflow-hidden shadow-2xl flex flex-col hover:translate-y-[-4px] transition-transform duration-300">
+<div class="h-48 relative">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="Abstract digital network connections" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAtpNera-qoz0DJP4_Rx1yLDSfsE7jUnhF2bjIz_GWv1mRFtRJBEU0u_GMGDQGyhc8Yxmak8MaSJansxMTYacIhN7lpKt59Gnt4WD4M45MyRszVCm29Bq6GTo_2jEHbrWmP9BKrtFXp6NI_H29yovxdj8d7hPu81cvbOflRTInNYzifO0XVe0SKiq6yHotWCK5_FYTUHseErldWd2IA2giBAT4vpYxn92Il_8_2SG0G1nK0wjnBlRMmOmVQ3SF24h476J2jdQGImBOy"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container to-transparent"></div>
+<div class="absolute bottom-4 left-4 flex gap-2">
+<span class="bg-primary-container/80 text-on-primary-container px-3 py-1 rounded-full text-[10px] font-label font-bold uppercase backdrop-blur-md">85% Match</span>
+<span class="bg-surface-container-highest/80 text-on-surface px-3 py-1 rounded-full text-[10px] font-label uppercase backdrop-blur-md">Emergent</span>
+</div>
+</div>
+<div class="p-6 flex-grow flex flex-col">
+<h4 class="text-xl font-bold mb-2">Neural Linkers</h4>
+<p class="text-on-surface-variant text-sm mb-6 leading-relaxed">
+                            Experimental simulation that uses AI to adapt to your playstyle in real-time. Perfectly aligns with your drift velocity.
+                        </p>
+<div class="mt-auto flex justify-between items-center pt-6 border-t border-outline-variant/10">
+<span class="text-lg font-black text-on-surface">$14.99</span>
+<button class="bg-primary text-on-primary px-4 py-2 rounded font-label text-xs uppercase font-bold tracking-widest hover:shadow-[0_0_15px_rgba(192,193,255,0.4)] transition-all active:scale-95">Explore Rift</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-[#0b1326] dark:bg-[#0b1326] full-width bottom-0 border-t border-slate-800/50 font-['Space_Grotesk'] text-xs tracking-widest uppercase">
+<div class="flex flex-col md:flex-row justify-between items-center py-12 px-8 w-full max-w-[1440px] mx-auto">
+<div class="flex flex-col items-center md:items-start gap-2 mb-8 md:mb-0">
+<span class="text-lg font-bold text-slate-200">Playrift AI</span>
+<span class="text-slate-500">© 2024 Playrift AI. All rights reserved.</span>
+</div>
+<div class="flex gap-12">
+<div class="flex flex-col gap-3">
+<span class="text-slate-200 font-bold mb-1">Product</span>
+<a class="text-slate-500 hover:text-[#ffb783] transition-colors duration-200 opacity-100 hover:opacity-80" href="#">Privacy</a>
+<a class="text-slate-500 hover:text-[#ffb783] transition-colors duration-200 opacity-100 hover:opacity-80" href="#">Terms</a>
+</div>
+<div class="flex flex-col gap-3">
+<span class="text-slate-200 font-bold mb-1">Developer</span>
+<a class="text-slate-500 hover:text-[#ffb783] transition-colors duration-200 opacity-100 hover:opacity-80" href="#">API</a>
+<a class="text-slate-500 hover:text-[#ffb783] transition-colors duration-200 opacity-100 hover:opacity-80" href="#">Support</a>
+</div>
+</div>
+</div>
+</footer>
+</body></html>

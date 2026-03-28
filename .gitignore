@@ -1,0 +1,15 @@
+.next
+node_modules
+.env.local
+dist
+coverage
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+.env
+.env.local
+.env.example
+supabase/migrations/*.sql

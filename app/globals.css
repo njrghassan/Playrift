@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  @apply bg-surface text-on-surface;
+}
+
+::selection {
+  background: rgb(128 131 255);
+  color: #0d0096;
+}
+
+.glass-card {
+  background: rgba(23, 31, 51, 0.4);
+  backdrop-filter: blur(24px);
+}
+
+.drift-gradient {
+  background: linear-gradient(180deg, rgba(192, 193, 255, 0.15) 0%, rgba(192, 193, 255, 0) 100%);
+}
+
+.glow-border-primary {
+  box-shadow: 0 0 15px rgba(192, 193, 255, 0.2);
+}

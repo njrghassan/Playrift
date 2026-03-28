@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;family=Space+Grotesk:wght@300..700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-primary-fixed": "#07006c",
+              "on-surface": "#dae2fd",
+              "error": "#ffb4ab",
+              "surface-bright": "#31394d",
+              "surface-container-highest": "#2d3449",
+              "on-tertiary-container": "#452000",
+              "surface-container-low": "#131b2e",
+              "surface-tint": "#c0c1ff",
+              "surface": "#0b1326",
+              "on-secondary-fixed": "#0d1c2d",
+              "secondary-fixed-dim": "#b9c8de",
+              "primary-fixed": "#e1e0ff",
+              "on-tertiary-fixed": "#301400",
+              "on-primary-fixed-variant": "#2f2ebe",
+              "on-background": "#dae2fd",
+              "on-tertiary": "#4f2500",
+              "primary-fixed-dim": "#c0c1ff",
+              "on-secondary": "#233143",
+              "on-primary": "#1000a9",
+              "surface-container": "#171f33",
+              "surface-container-lowest": "#060e20",
+              "on-tertiary-fixed-variant": "#703700",
+              "error-container": "#93000a",
+              "on-primary-container": "#0d0096",
+              "on-secondary-container": "#a7b6cc",
+              "primary": "#c0c1ff",
+              "tertiary-container": "#d97721",
+              "surface-variant": "#2d3449",
+              "secondary": "#b9c8de",
+              "tertiary-fixed-dim": "#ffb783",
+              "outline-variant": "#464554",
+              "tertiary": "#ffb783",
+              "inverse-on-surface": "#283044",
+              "on-error": "#690005",
+              "background": "#0b1326",
+              "on-secondary-fixed-variant": "#39485a",
+              "on-error-container": "#ffdad6",
+              "secondary-fixed": "#d4e4fa",
+              "surface-container-high": "#222a3d",
+              "inverse-primary": "#494bd6",
+              "primary-container": "#8083ff",
+              "surface-dim": "#0b1326",
+              "on-surface-variant": "#c7c4d7",
+              "tertiary-fixed": "#ffdcc5",
+              "secondary-container": "#39485a",
+              "outline": "#908fa0",
+              "inverse-surface": "#dae2fd"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Manrope"],
+              "label": ["Space Grotesk"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .glass-card {
+        background: rgba(23, 31, 51, 0.4);
+        backdrop-filter: blur(24px);
+      }
+      .glow-border-primary {
+        box-shadow: 0 0 15px rgba(192, 193, 255, 0.2);
+      }
+      .obsidian-gradient {
+        background: radial-gradient(circle at top left, #171f33 0%, #0b1326 100%);
+      }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopNavBar -->
+<nav class="bg-[#0b1326] font-['Manrope'] antialiased tracking-tight docked full-width top-0 sticky z-50 bg-[#161e2f] shadow-[0_20px_40px_rgba(7,0,108,0.15)]">
+<div class="flex justify-between items-center h-20 px-8 w-full max-w-[1440px] mx-auto">
+<div class="text-2xl font-black tracking-tighter text-[#c0c1ff]">Playrift</div>
+<div class="hidden md:flex items-center space-x-10">
+<a class="text-slate-400 font-medium hover:text-slate-100 transition-colors" href="#">Features</a>
+<a class="text-slate-400 font-medium hover:text-slate-100 transition-colors" href="#">How it Works</a>
+<a class="text-slate-400 font-medium hover:text-slate-100 transition-colors" href="#">Dashboard</a>
+</div>
+<div class="flex items-center space-x-6">
+<div class="relative hidden lg:block group">
+<div class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-sm text-primary">search</span>
+</div>
+<input class="bg-surface-container-lowest border-none rounded-lg py-2 pl-10 pr-4 text-sm focus:ring-1 focus:ring-primary w-64 transition-all" placeholder="Search games..." type="text"/>
+</div>
+<button class="bg-primary-container text-on-primary-container px-6 py-2.5 rounded-lg font-bold hover:bg-[#8083ff]/90 hover:shadow-[0_0_15px_rgba(192,193,255,0.3)] transition-all duration-300 active:scale-95 transform">
+                    Connect Steam
+                </button>
+</div>
+</div>
+</nav>
+<!-- Hero Section -->
+<header class="relative min-h-[921px] flex items-center overflow-hidden">
+<div class="absolute inset-0 z-0">
+<img class="w-full h-full object-cover opacity-40 mix-blend-luminosity" data-alt="Cinematic high-fidelity action game environment background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAVR_4vXbXTld-u2QvoMfN5UBcvDBCehm5bBJpwZhurYpYjt7akxOJ-1W-jdnMIywiY5qfRmixm-8SpTcZTR3APPJvhOQNFHYE3y88JwYqm-smndfuzVid6Dwl8ak3Q5_vld16KX5OW2dfovZA2hL-12fDVjx0IBzZhwFA922IXL50X7A91z4zbH986bHPunMeOmpuE1n66Y0Hb615jJPCQwkEjH42OGbkkf3ZVIrzfHPOnkOk4trk3eo2ut7W5dDV8ZOPxQEyzkfy9"/>
+<div class="absolute inset-0 bg-gradient-to-r from-surface via-surface/80 to-transparent"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent"></div>
+</div>
+<div class="container mx-auto px-8 relative z-10 grid lg:grid-cols-2 gap-12 items-center">
+<div class="space-y-8">
+<div class="inline-flex items-center px-3 py-1 rounded-full bg-surface-container-highest/60 border border-outline-variant/30 backdrop-blur-md">
+<span class="font-label text-xs tracking-widest text-tertiary uppercase mr-2">New Update</span>
+<span class="font-label text-xs tracking-widest text-primary uppercase">v2.4 AI Engine Live</span>
+</div>
+<h1 class="text-6xl md:text-8xl font-black tracking-tighter leading-[0.9] text-on-surface">
+                    YOUR STEAM <br/> <span class="text-primary italic">REMASTERED.</span>
+</h1>
+<p class="text-xl text-on-surface-variant max-w-lg leading-relaxed">
+                    Playrift analyzes your library, playstyle, and achievements to synthesize the perfect gaming trajectory. No more scrolling, just playing.
+                </p>
+<div class="flex flex-wrap gap-4 pt-4">
+<button class="bg-primary text-on-primary px-8 py-4 rounded font-bold text-lg hover:shadow-[0_0_30px_rgba(192,193,255,0.4)] transition-all active:scale-95">
+                        Launch Dashboard
+                    </button>
+<button class="glass-card border border-outline-variant/30 text-on-surface px-8 py-4 rounded font-bold text-lg hover:bg-surface-container-high transition-all">
+                        View Discovery Queue
+                    </button>
+</div>
+</div>
+<!-- Bento Grid Preview -->
+<div class="grid grid-cols-2 gap-4 hidden lg:grid">
+<div class="col-span-2 glass-card p-6 rounded-xl border border-primary/20 glow-border-primary">
+<div class="flex justify-between items-start mb-4">
+<span class="font-label text-xs text-secondary-fixed-dim uppercase tracking-tighter">AI Prediction</span>
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">insights</span>
+</div>
+<div class="flex items-center gap-4">
+<div class="w-20 h-28 rounded-md overflow-hidden bg-surface-container-highest">
+<img class="w-full h-full object-cover" data-alt="Cyberpunk game cover art preview" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAsYA-e0MU-FUgwwXGKRFmIhtLRIUqKqPGtE3Jc6UmB2fC-xokrHocDSDn2HeGdbKFfwDR38xSaXSvzBUQXdjzL9mocRWiwfi5MBh4Ly4fx4DgX_re9YBpyYciTFlegeDYORHwbXau_uVGSrrWKB2mjKs4JTm3SRK0samdyw7y6WHaNJRp3HBMI7kblJJ-CEWPg0GKEcbC58Dn6ghfql8X_OI_dtfkc7E5SkpMcBGXNzUJgtPGsVXsz8s8PGsJ5242eerdukNDXjO-c"/>
+</div>
+<div>
+<h3 class="font-bold text-xl text-white">Neon Protocol</h3>
+<p class="text-on-surface-variant text-sm mt-1">98% Compatibility based on your recent RPG sessions.</p>
+<div class="mt-3 flex gap-2">
+<span class="px-2 py-1 rounded-full bg-surface-container-lowest text-[10px] font-label uppercase text-primary border border-primary/20">Cyberpunk</span>
+<span class="px-2 py-1 rounded-full bg-surface-container-lowest text-[10px] font-label uppercase text-primary border border-primary/20">Tactical</span>
+</div>
+</div>
+</div>
+</div>
+<div class="glass-card p-6 rounded-xl border border-outline-variant/20">
+<span class="font-label text-[10px] text-tertiary uppercase tracking-[0.2em] block mb-2">XP Gain Rate</span>
+<div class="text-3xl font-black text-white">+24.5%</div>
+<div class="w-full bg-surface-container-lowest h-1.5 mt-4 rounded-full overflow-hidden">
+<div class="bg-tertiary h-full w-3/4 shadow-[0_0_10px_rgba(255,183,131,0.5)]"></div>
+</div>
+</div>
+<div class="glass-card p-6 rounded-xl border border-outline-variant/20">
+<span class="font-label text-[10px] text-primary uppercase tracking-[0.2em] block mb-2">Sync Status</span>
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_8px_#c0c1ff]"></div>
+<span class="text-white font-bold">Encrypted</span>
+</div>
+<div class="mt-4 flex -space-x-2">
+<div class="w-8 h-8 rounded-full border-2 border-surface bg-surface-container-highest"></div>
+<div class="w-8 h-8 rounded-full border-2 border-surface bg-surface-container-high"></div>
+<div class="w-8 h-8 rounded-full border-2 border-surface bg-surface-container-low"></div>
+</div>
+</div>
+</div>
+</div>
+</header>
+<!-- Features Section -->
+<section class="py-24 bg-surface-container-lowest relative overflow-hidden">
+<div class="container mx-auto px-8">
+<div class="mb-20">
+<h2 class="font-label text-sm uppercase tracking-[0.4em] text-primary mb-4">The Intelligence</h2>
+<h3 class="text-5xl font-black tracking-tighter text-on-surface">HOW PLAYRIFT <br/>REDEFINES PLAY.</h3>
+</div>
+<div class="grid md:grid-cols-3 gap-8">
+<!-- Feature 1 -->
+<div class="group p-8 rounded-xl bg-surface border border-transparent hover:border-primary/30 transition-all duration-500">
+<div class="w-12 h-12 bg-surface-container-high rounded flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">neurology</span>
+</div>
+<h4 class="text-2xl font-bold text-white mb-4">Semantic Analysis</h4>
+<p class="text-on-surface-variant leading-relaxed">Our AI doesn't just look at genres. It maps mechanical preferences, narrative tropes, and pacing expectations across your entire history.</p>
+</div>
+<!-- Feature 2 -->
+<div class="group p-8 rounded-xl bg-surface border border-transparent hover:border-primary/30 transition-all duration-500">
+<div class="w-12 h-12 bg-surface-container-high rounded flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">trophy</span>
+</div>
+<h4 class="text-2xl font-bold text-white mb-4">Achievement DNA</h4>
+<p class="text-on-surface-variant leading-relaxed">Unlock hidden insights based on the way you complete games. Are you a speedrunner, a completionist, or an explorer? We know.</p>
+</div>
+<!-- Feature 3 -->
+<div class="group p-8 rounded-xl bg-surface border border-transparent hover:border-primary/30 transition-all duration-500">
+<div class="w-12 h-12 bg-surface-container-high rounded flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">groups</span>
+</div>
+<h4 class="text-2xl font-bold text-white mb-4">Dynamic Lobbies</h4>
+<p class="text-on-surface-variant leading-relaxed">Find your perfect squad. We match players not just by skill level, but by strategic temperament and communication style.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Asymmetric Content Section -->
+<section class="py-24 bg-surface">
+<div class="container mx-auto px-8 grid lg:grid-cols-12 gap-12 items-center">
+<div class="lg:col-span-7 relative">
+<div class="absolute -top-10 -left-10 w-40 h-40 bg-primary/10 blur-[100px]"></div>
+<div class="relative rounded-2xl overflow-hidden border border-outline-variant/20 shadow-2xl">
+<img class="w-full aspect-video object-cover grayscale group-hover:grayscale-0 transition-all" data-alt="Modern gaming desk setup with glowing keyboard and multiple monitors" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA1pyYcl_jt-Syq0pU3rDgQJXtIFKOjktZ6Tcahwra6pYGE5eunvSSh233I68TykePWz5LE67fpwpRaR3xHRqQkHux4y0ialTLkpIveOG69NrtLgyisW-ZI2vsHPmdIAUlRNWgt14LTN7aKlz0kxBJzPh-BsCMUwXnI7whWXz1CRJE_CidYbFSrXgLzZ2Ey7rZfMVFX_ciSz8ygLip5ZxbiDGl2wGPd67XogdlOma2yFKbXw0vDT7AJAEe00wIaw1cM4bO2BONYlUQD"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent"></div>
+<div class="absolute bottom-6 left-6 right-6 flex justify-between items-end">
+<div>
+<div class="font-label text-[10px] text-tertiary tracking-[0.3em] uppercase mb-1">Live Feed</div>
+<div class="text-white font-bold text-lg">Atmospheric Simulation Active</div>
+</div>
+<div class="flex gap-2">
+<div class="w-2 h-2 rounded-full bg-error animate-ping"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="lg:col-span-5 space-y-6">
+<h2 class="text-4xl font-black tracking-tight text-on-surface">THE "INTELLIGENT VOID" INTERFACE.</h2>
+<p class="text-on-surface-variant text-lg leading-relaxed">
+                    Experience a UI that stays out of your way. Deep obsidian tones and liquid transitions ensure that the only thing you focus on is your next digital adventure.
+                </p>
+<ul class="space-y-4">
+<li class="flex items-center gap-4 group">
+<span class="material-symbols-outlined text-primary group-hover:rotate-12 transition-transform">bolt</span>
+<span class="font-bold text-white">Sub-10ms Library Analysis</span>
+</li>
+<li class="flex items-center gap-4 group">
+<span class="material-symbols-outlined text-primary group-hover:rotate-12 transition-transform">auto_awesome</span>
+<span class="font-bold text-white">Generative Discovery Queues</span>
+</li>
+<li class="flex items-center gap-4 group">
+<span class="material-symbols-outlined text-primary group-hover:rotate-12 transition-transform">security</span>
+<span class="font-bold text-white">End-to-End Steam Privacy</span>
+</li>
+</ul>
+<div class="pt-4">
+<a class="inline-flex items-center gap-2 text-primary font-bold hover:gap-4 transition-all" href="#">
+                        Learn about the Engine <span class="material-symbols-outlined">arrow_forward</span>
+</a>
+</div>
+</div>
+</div>
+</section>
+<!-- Games Showcase (Cards) -->
+<section class="py-24 bg-surface-container-low">
+<div class="container mx-auto px-8">
+<div class="flex justify-between items-end mb-12">
+<div>
+<h2 class="text-3xl font-black text-white">READY FOR BOOT?</h2>
+<p class="text-on-surface-variant mt-2">Games currently trending in your social rift.</p>
+</div>
+<button class="font-label text-xs uppercase text-slate-500 hover:text-primary transition-colors tracking-widest">See all games</button>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+<!-- Card 1 -->
+<div class="group relative aspect-[3/4] rounded-lg overflow-hidden bg-surface-container-highest transition-all duration-500 hover:-translate-y-2">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="Dark fantasy warrior standing on a mountain peak" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDg7lDcbhPrBXVnf9CJFAARP99F1r1K0lX5eoBkA6UUN81yhrRC3Hkn4TyFpc0xCUrQmmSACmYnmj6swO4GwptZS4pFq-20FGtFateMbGcbizuPWBEWIY5v-qBCzacPHH2RigVjw3nmjr-uU-aTW6UabLgkilWLHi793hHfxL0Fg3es_zAqx75mc0Cw_iZdUAVHvhDbN_0kjuv8dyHM_4AiGjU7oZPAxj5Jo5NhvSE0XjfSpexa-ju7Ye0mr_Miq8UhOYsKZijlvJtf"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-low via-transparent to-transparent opacity-90"></div>
+<div class="absolute bottom-0 left-0 p-6 w-full">
+<div class="font-label text-[10px] text-primary uppercase mb-2">94% Fit</div>
+<h4 class="text-xl font-bold text-white">Elden Sagas</h4>
+<div class="mt-3 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="text-sm font-bold text-tertiary">$59.99</span>
+<span class="material-symbols-outlined text-white cursor-pointer hover:text-primary">add_circle</span>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="group relative aspect-[3/4] rounded-lg overflow-hidden bg-surface-container-highest transition-all duration-500 hover:-translate-y-2">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="Futuristic starship flying through a colorful nebula" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC6zN5WCj8aLjkGYDEIrDBVV8LZZSiqlRDGnaX6aPPEGnBPPlBnJ-aI8P416eik4GGegAUyEOJN77bsuAlkTkJAEhHOysT-AAFC-54varYn6F1AXu0GvXXkIY0p_VceXmF_fNj2dH1WN6KcEPzJhlVaCF77ehKYOCZudjos_3efRcVixf0Nf8td1X6qscVAQ8eVe3TmYRP1ALwWTFUKHJRQTh7fTqREaT2-09GyC7baAuOzxxTj7raRMPGJHvAdne4JHBy9-eQgOihe"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-low via-transparent to-transparent opacity-90"></div>
+<div class="absolute bottom-0 left-0 p-6 w-full">
+<div class="font-label text-[10px] text-primary uppercase mb-2">88% Fit</div>
+<h4 class="text-xl font-bold text-white">Void Horizon</h4>
+<div class="mt-3 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="text-sm font-bold text-tertiary">$24.99</span>
+<span class="material-symbols-outlined text-white cursor-pointer hover:text-primary">add_circle</span>
+</div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="group relative aspect-[3/4] rounded-lg overflow-hidden bg-surface-container-highest transition-all duration-500 hover:-translate-y-2">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="Stylized character in a top-down isometric combat game" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAPHy-LSsNU8dVfpiT1YYA3IK2vEH8p0EyuXxs89k3QACn8yC1-hRd8dIMIuACTotHVTAjkt93TFXle_1uIIqdSa9h2aNVAkLTq0blSvsUH-hmHR6rju2yJvYcq1ZL7WcyIjNxsVeDabdMoGGiqdU-DN7zrIQFu6HlMV95EpxDwOpl6eRsVqAk3TY5h7f9UfoVcz2bf2RF88U0lAc2cx-CywADlSHRlcW-DboGVXr2DH_rsZbv5LvuA4OAhd6_IRAPTA653ILVXnfT_"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-low via-transparent to-transparent opacity-90"></div>
+<div class="absolute bottom-0 left-0 p-6 w-full">
+<div class="font-label text-[10px] text-primary uppercase mb-2">Highly Recommended</div>
+<h4 class="text-xl font-bold text-white">Rift Tactician</h4>
+<div class="mt-3 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="text-sm font-bold text-tertiary">Free to Play</span>
+<span class="material-symbols-outlined text-white cursor-pointer hover:text-primary">add_circle</span>
+</div>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="group relative aspect-[3/4] rounded-lg overflow-hidden bg-surface-container-highest transition-all duration-500 hover:-translate-y-2">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="Cyberpunk city street with bright neon signs and rainy reflections" src="https://lh3.googleusercontent.com/aida-public/AB6AXuArH87I6tcWTRwLoukKc4SYr_NjtpEpnXhyKtv59Au0qMUsQEs_VbqZ9w3x2jGnAzHjTeHw5-lCWATKaT-ZrvGxfcyhGw0eYF1q7mWniMIHQYnJTp52-xSs8WM2f6f_Iioxyob1HXmGzWz6q7Se74o0fz8mxxn8oEQRj0Vkgr72UqG7AYFNjd9FDHjcXjUdGMH9eXa2Bj5U2L-aC-Hmnhv4Fdz5JqMjzT4RWhusKZ5XVMzH74yhT6n0RM66AyNSx0ZHaFONCKYW76mq"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-low via-transparent to-transparent opacity-90"></div>
+<div class="absolute bottom-0 left-0 p-6 w-full">
+<div class="font-label text-[10px] text-primary uppercase mb-2">Just for You</div>
+<h4 class="text-xl font-bold text-white">Neural Core</h4>
+<div class="mt-3 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="text-sm font-bold text-tertiary">$39.99</span>
+<span class="material-symbols-outlined text-white cursor-pointer hover:text-primary">add_circle</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- CTA Section -->
+<section class="py-32 bg-surface relative">
+<div class="absolute inset-0 overflow-hidden pointer-events-none">
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[300px] bg-primary/5 blur-[120px] rounded-full"></div>
+</div>
+<div class="container mx-auto px-8 relative text-center">
+<h2 class="text-5xl md:text-7xl font-black text-white mb-8 tracking-tighter">THE RIFT IS <span class="italic text-primary">WAITING.</span></h2>
+<p class="text-on-surface-variant text-xl max-w-2xl mx-auto mb-12">
+                Join 50,000+ gamers who have already optimized their Steam experience. Total setup time: less than 60 seconds.
+            </p>
+<div class="flex flex-col sm:flex-row gap-4 justify-center">
+<button class="bg-primary-container text-on-primary-container px-10 py-5 rounded font-black text-xl hover:shadow-[0_0_40px_rgba(128,131,255,0.4)] transition-all">
+                    CONNECT STEAM NOW
+                </button>
+<button class="glass-card border border-outline-variant/30 text-white px-10 py-5 rounded font-black text-xl hover:bg-surface-container-high transition-all">
+                    EXPLORE AI MODELS
+                </button>
+</div>
+</div>
+</section>
+<!-- Footer -->
+<footer class="bg-[#0b1326] border-t border-slate-800/50 font-['Space_Grotesk'] text-xs tracking-widest uppercase">
+<div class="flex flex-col md:flex-row justify-between items-center py-12 px-8 w-full max-w-[1440px] mx-auto">
+<div class="mb-8 md:mb-0">
+<div class="text-lg font-bold text-slate-200 mb-2">Playrift AI</div>
+<div class="text-slate-500 normal-case tracking-normal">Unlocking digital potential through neural analysis.</div>
+</div>
+<div class="flex flex-wrap justify-center gap-10">
+<a class="text-slate-500 hover:text-[#ffb783] transition-colors duration-200" href="#">Privacy</a>
+<a class="text-slate-500 hover:text-[#ffb783] transition-colors duration-200" href="#">Terms</a>
+<a class="text-slate-500 hover:text-[#ffb783] transition-colors duration-200" href="#">API</a>
+<a class="text-slate-500 hover:text-[#ffb783] transition-colors duration-200" href="#">Support</a>
+</div>
+<div class="mt-8 md:mt-0 text-slate-500 text-center md:text-right">
+                © 2024 Playrift AI. All rights reserved.
+            </div>
+</div>
+</footer>
+</body></html>
