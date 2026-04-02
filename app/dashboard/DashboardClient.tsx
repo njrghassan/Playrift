@@ -4,6 +4,7 @@ import { useState } from "react";
 import { BlacklistManager } from "@/components/BlacklistManager";
 import { RecommendationsPanel } from "@/components/RecommendationsPanel";
 import { SteamConnectForm } from "@/components/SteamConnectForm";
+import { SteamConnectedCard } from "@/components/SteamConnectedCard";
 import { GamePromptBox } from "@/components/GamePromptBox";
 
 const SESSION_IMG_1 =
@@ -142,13 +143,14 @@ export default function DashboardClient({
                   }}
                 />
               ) : (
-                <>
-                  <span className="material-symbols-outlined mb-2 text-4xl text-tertiary">
-                    auto_awesome
-                  </span>
-                  <h4 className="text-2xl font-black text-on-surface">Rift Ready</h4>
-                  <p className="font-label mt-2 text-xs uppercase text-outline">Steam linked</p>
-                </>
+                <div className="w-full text-left">
+                  <SteamConnectedCard
+                    onDisconnected={() => {
+                      setIsSteamConnected(false);
+                      refresh();
+                    }}
+                  />
+                </div>
               )}
             </div>
           </div>
