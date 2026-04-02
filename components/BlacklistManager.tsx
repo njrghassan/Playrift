@@ -49,21 +49,21 @@ export function BlacklistManager({
   }
 
   return (
-    <section className="rounded-2xl bg-surface-container-low p-6 ring-1 ring-outline-variant/20">
-      <h3 className="text-xl font-bold text-primary">Blacklist</h3>
-      <p className="mt-1 text-sm text-on-surface-variant">
+    <section className="rounded-xl border-l-4 border-tertiary/60 bg-surface-container-high p-6 shadow-lg">
+      <h3 className="font-label text-sm uppercase tracking-widest text-secondary-fixed-dim">Blacklist</h3>
+      <p className="mt-2 text-sm text-on-surface-variant">
         Exclude games you never want to see in recommendations.
       </p>
-      <form onSubmit={addItem} className="mt-4 flex gap-3">
+      <form onSubmit={addItem} className="mt-4 flex flex-col gap-3 sm:flex-row">
         <input
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
           placeholder="Game name"
-          className="w-full rounded-lg bg-surface-container-lowest px-3 py-2 outline-none ring-1 ring-outline-variant/20 focus:ring-2 focus:ring-primary"
+          className="w-full rounded-lg border-none bg-surface-container-lowest px-4 py-3 text-sm outline-none ring-1 ring-transparent focus:ring-1 focus:ring-primary"
         />
         <button
           disabled={loading}
-          className="rounded-lg bg-primary-container px-4 py-2 text-sm font-semibold text-on-primary-container disabled:opacity-50"
+          className="font-label shrink-0 rounded-lg bg-primary-container px-5 py-3 text-xs font-bold uppercase tracking-widest text-on-primary-container transition hover:bg-[#8083ff]/90 disabled:opacity-50"
         >
           Add
         </button>
@@ -75,10 +75,11 @@ export function BlacklistManager({
           items.map((item) => (
             <button
               key={item.id}
+              type="button"
               onClick={() => removeItem(item.id)}
-              className="rounded-full bg-surface-container-lowest px-3 py-1.5 text-sm text-on-surface ring-1 ring-outline-variant/20"
+              className="font-label rounded-full border border-primary/20 bg-surface-container-lowest px-3 py-1.5 text-xs uppercase tracking-wider text-primary transition hover:bg-surface-container"
             >
-              {item.game_name} x
+              {item.game_name} ×
             </button>
           ))
         )}

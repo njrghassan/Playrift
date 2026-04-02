@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0..1,0&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -10,14 +12,22 @@ body {
   @apply bg-surface text-on-surface;
 }
 
-::selection {
-  background: rgb(128 131 255);
-  color: #0d0096;
+.material-symbols-outlined {
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
 }
 
 .glass-card {
   background: rgba(23, 31, 51, 0.4);
   backdrop-filter: blur(24px);
+}
+
+.obsidian-glass {
+  background: rgba(23, 31, 51, 0.4);
+  backdrop-filter: blur(24px);
+}
+
+.obsidian-gradient {
+  background: radial-gradient(circle at top left, #171f33 0%, #0b1326 100%);
 }
 
 .drift-gradient {

@@ -2,8 +2,15 @@ import type { Metadata } from "next";
 import { Manrope, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 
-const manrope = Manrope({ subsets: ["latin"] });
-const spaceGrotesk = Space_Grotesk({ subsets: ["latin"] });
+const manrope = Manrope({
+  subsets: ["latin"],
+  variable: "--font-manrope"
+});
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-space-grotesk"
+});
 
 export const metadata: Metadata = {
   title: "Playrift",
@@ -13,7 +20,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="dark">
-      <body className={`${manrope.className} ${spaceGrotesk.className} bg-surface text-on-surface`}>
+      <body
+        className={`${manrope.variable} ${spaceGrotesk.variable} font-body antialiased tracking-tight bg-surface text-on-surface selection:bg-primary-container selection:text-on-primary-container`}
+      >
         {children}
       </body>
     </html>

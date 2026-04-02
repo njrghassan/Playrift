@@ -66,28 +66,28 @@ export function GamePromptBox({
   }
 
   return (
-    <section className="rounded-2xl bg-surface-container-low p-4 ring-1 ring-outline-variant/20">
+    <section className="rounded-xl bg-surface-container p-6">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h3 className="text-sm font-bold text-primary">Quick Game Pick</h3>
-          <p className="mt-1 text-xs text-on-surface-variant">
-            Tell us what you feel like playing.
-          </p>
+          <h3 className="font-label text-sm uppercase tracking-widest text-secondary-fixed-dim">
+            Quick Game Pick
+          </h3>
+          <p className="mt-1 text-sm text-on-surface-variant">Tell us what you feel like playing.</p>
         </div>
       </div>
 
-      <form onSubmit={submit} className="mt-3 flex gap-2">
+      <form onSubmit={submit} className="mt-4 flex flex-col gap-3 sm:flex-row">
         <input
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           placeholder='e.g. "co-op deckbuilder with sci-fi"'
-          className="w-full rounded-lg bg-surface-container-lowest px-3 py-2 text-sm outline-none ring-1 ring-outline-variant/20 focus:ring-2 focus:ring-primary"
+          className="w-full rounded-lg border-none bg-surface-container-lowest px-4 py-3 text-sm outline-none ring-1 ring-transparent focus:ring-1 focus:ring-primary"
           disabled={loading}
         />
         <button
           type="submit"
           disabled={loading}
-          className="rounded-lg bg-primary-container px-3 py-2 text-sm font-semibold text-on-primary-container disabled:opacity-50"
+          className="font-label shrink-0 rounded-lg bg-primary px-4 py-3 text-xs font-bold uppercase tracking-widest text-on-primary transition-all hover:shadow-[0_0_15px_rgba(192,193,255,0.4)] disabled:opacity-50"
         >
           {loading ? "..." : "Send"}
         </button>
@@ -96,9 +96,9 @@ export function GamePromptBox({
       {error ? <p className="mt-3 text-sm text-error">{error}</p> : null}
 
       {data ? (
-        <div className="mt-3 rounded-xl bg-surface-container-lowest p-3 ring-1 ring-outline-variant/20">
-          <p className="text-sm font-semibold text-primary">Suggestion</p>
-          <p className="mt-1 text-sm text-on-surface-variant">{data.answer}</p>
+        <div className="obsidian-glass mt-4 rounded-xl border border-outline-variant/20 p-4">
+          <p className="font-label text-xs uppercase tracking-widest text-primary">Suggestion</p>
+          <p className="mt-2 text-sm text-on-surface-variant">{data.answer}</p>
           {data.game?.title ? (
             <p className="mt-2 text-sm">
               <span className="font-semibold text-primary">Game:</span>{" "}
