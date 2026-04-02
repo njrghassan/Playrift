@@ -4,6 +4,7 @@ import { useState } from "react";
 import { BlacklistManager } from "@/components/BlacklistManager";
 import { RecommendationsPanel } from "@/components/RecommendationsPanel";
 import { SteamConnectForm } from "@/components/SteamConnectForm";
+import { SteamConnectedCard } from "@/components/SteamConnectedCard";
 import { GamePromptBox } from "@/components/GamePromptBox";
 
 type BlacklistItem = { id: number; game_name: string };
@@ -32,7 +33,14 @@ export default function DashboardClient({
               refresh();
             }}
           />
-        ) : null}
+        ) : (
+          <SteamConnectedCard
+            onDisconnected={() => {
+              setIsSteamConnected(false);
+              refresh();
+            }}
+          />
+        )}
         <GamePromptBox blacklist={blacklist} />
         <RecommendationsPanel refreshKey={refreshKey} />
       </div>
