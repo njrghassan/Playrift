@@ -1,6 +1,6 @@
-import { extractSteamId } from "@/lib/steam";
+import { parseSteamProfileInput } from "@/lib/steam";
 import { createClient } from "@/lib/supabase/server";
-import { fetchOwnedGames } from "@/services/steamService";
+import { fetchOwnedGames, resolveVanityToSteam64 } from "@/services/steamService";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
@@ -9,8 +9,11 @@ export async function POST(request: Request) {
     const steamInput = body?.steamInput as string | undefined;
     if (!steamInput) return NextResponse.json({ error: "Steam input is required." }, { status: 400 });
 
-    const steamId = extractSteamId(steamInput);
-    if (!steamId) return NextResponse.json({ error: "Invalid Steam URL or ID." }, { status: 400 });
+    const parsed = parseSteamProfileInput(steamInput);
+    if (!parsed) return NextResponse.json({ error: "Invalid Steam URL or ID." }, { status: 400 });
+
+    const steamId =
+      parsed.kind === "steam64" ? parsed.steamId : await resolveVanityToSteam64(parsed.vanity);
 
     const supabase = await createClient();
     const {
