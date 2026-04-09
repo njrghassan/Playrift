@@ -4,6 +4,8 @@ export type SteamOwnedGame = {
   playtime_forever: number;
   playtime_2weeks?: number;
   img_icon_url?: string;
+  img_logo_url?: string;
+  rtime_last_played?: number;
 };
 
 export type GenreCount = Record<string, number>;
