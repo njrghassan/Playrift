@@ -18,4 +18,11 @@ export type RecommendedGame = {
   genres: { id: number; name: string; slug: string }[];
   score: number;
   reason: string;
+  /** RAWG popularity signals (when present). */
+  added?: number;
+  ratings_count?: number;
+  /** CheapShark “cheapest current” USD (often Steam); null if unknown. */
+  price_usd?: number | null;
+  /** Same deal, converted to the API response’s root `currency`; null if unknown or no FX rate. */
+  price?: number | null;
 };

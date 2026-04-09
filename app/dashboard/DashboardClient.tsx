@@ -273,22 +273,11 @@ export default function DashboardClient({
       </section>
 
       <section className="mb-20">
-        <div className="mb-8 flex items-center justify-between">
-          <div>
-            <h3 className="text-3xl font-bold tracking-tight">Rift Suggestions</h3>
-            <p className="mt-1 text-sm text-on-surface-variant">
-              Cross-analyzed with your behavioral drift trends.
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <button
-              type="button"
-              className="rounded-lg border border-outline-variant/20 bg-surface-container p-2 transition-colors hover:bg-surface-container-high"
-              aria-label="Tune suggestions"
-            >
-              <span className="material-symbols-outlined">tune</span>
-            </button>
-          </div>
+        <div className="mb-8">
+          <h3 className="text-3xl font-bold tracking-tight">Rift Suggestions</h3>
+          <p className="mt-1 text-sm text-on-surface-variant">
+            Cross-analyzed with your behavioral drift trends. Search, filter, and sort below.
+          </p>
         </div>
         <RecommendationsPanel refreshKey={recommendationsRefreshKey} />
       </section>

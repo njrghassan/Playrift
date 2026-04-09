@@ -1,6 +1,11 @@
 import { createClient } from "@/lib/supabase/server";
+import { countryToCurrency, isSupportedCurrency } from "@/lib/currency";
+import { RecommendedGame } from "@/lib/types";
+import { getCheapestPriceUsdByTitle } from "@/services/cheapSharkService";
+import { convertFromUsd } from "@/services/exchangeRateService";
 import { fetchOwnedGames } from "@/services/steamService";
 import { generateRecommendations } from "@/services/recommendationService";
+import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
 function buildBehavioralInsight(recentTopGenres: string[], longTopGenres: string[]) {
@@ -17,7 +22,23 @@ function buildBehavioralInsight(recentTopGenres: string[], longTopGenres: string
   return `You've shifted from ${longPrimary} toward ${recentPrimary} based on your recent sessions.`;
 }
 
-export async function GET() {
+function getCountryFromRequest(request: NextRequest): string | null {
+  const raw =
+    request.headers.get("x-vercel-ip-country") ||
+    request.headers.get("cf-ipcountry") ||
+    request.headers.get("cloudfront-viewer-country") ||
+    request.headers.get("x-country-code");
+  if (!raw || raw.length !== 2) return null;
+  return raw.toUpperCase();
+}
+
+function resolveDisplayCurrency(request: NextRequest, param: string | null): string {
+  const q = param?.trim().toUpperCase() ?? "";
+  if (q && q !== "AUTO" && isSupportedCurrency(q)) return q;
+  return countryToCurrency(getCountryFromRequest(request));
+}
+
+export async function GET(request: NextRequest) {
   try {
     const supabase = await createClient();
     const {
@@ -40,15 +61,36 @@ export async function GET() {
       .select("game_name")
       .eq("user_id", user.id);
 
+    const displayCurrency = resolveDisplayCurrency(
+      request,
+      request.nextUrl.searchParams.get("currency")
+    );
+
     const ownedGames = await fetchOwnedGames(profile.steam_id);
     const { recommendations, recentTopGenres, longTopGenres } = await generateRecommendations(
       ownedGames,
       (blacklistRows ?? []).map((row) => row.game_name)
     );
 
+    const withPrices = await Promise.all(
+      recommendations.map(async (game): Promise<RecommendedGame> => {
+        const price_usd = await getCheapestPriceUsdByTitle(game.name);
+        let price: number | null = null;
+        if (price_usd != null && Number.isFinite(price_usd)) {
+          if (displayCurrency === "USD") {
+            price = price_usd;
+          } else {
+            price = await convertFromUsd(price_usd, displayCurrency);
+          }
+        }
+        return { ...game, price_usd, price };
+      })
+    );
+
     return NextResponse.json({
       insight: buildBehavioralInsight(recentTopGenres, longTopGenres),
-      recommendations
+      currency: displayCurrency,
+      recommendations: withPrices
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Failed to generate recommendations.";

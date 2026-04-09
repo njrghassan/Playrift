@@ -66,7 +66,7 @@ export async function getGamesByGenres(genreSlugs: string[]): Promise<RawgGame[]
   url.searchParams.set("genres", genreSlugs.join(","));
   // Prefer globally popular titles for recommendation candidates.
   url.searchParams.set("ordering", "-added");
-  url.searchParams.set("page_size", "40");
+  url.searchParams.set("page_size", "60");
 
   const response = await fetch(url, { next: { revalidate: 60 * 60 } });
   if (!response.ok) throw new Error("RAWG fetch failed.");

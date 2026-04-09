@@ -177,7 +177,7 @@ export async function generateRecommendations(
       if (popDiff !== 0) return popDiff;
       return b.score - a.score;
     })
-    .slice(0, 12);
+    .slice(0, 20);
 
   return { recommendations, recentTopGenres, longTopGenres };
 }
