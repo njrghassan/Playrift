@@ -36,9 +36,6 @@ export function DashboardNav() {
             <Link href="/dashboard" className={navClass(isDashboard)}>
               Dashboard
             </Link>
-            <Link href="/dashboard/profile" className={navClass(isProfile)}>
-              Profile
-            </Link>
             <Link href="/dashboard/play-together" className={navClass(isPlayTogether)}>
               Play together
             </Link>
@@ -46,6 +43,9 @@ export function DashboardNav() {
         </div>
         <div className="flex items-center gap-4">
           <SignOutButton />
+          <Link href="/dashboard/profile" className={navClass(isProfile)}>
+            Profile
+          </Link>
         </div>
       </nav>
     </header>

@@ -1,10 +1,27 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import type { FriendCompareResponse } from "@/lib/friendCompare";
 import { PlayTogetherGameRow } from "@/components/PlayTogetherGameRow";
 
-export default function PlayTogetherClient({ steamConnected }: { steamConnected: boolean }) {
+export default function PlayTogetherClient({
+  steamConnected,
+  userDisplayName,
+  userAvatarUrl,
+  userLibrarySize,
+  userTotalHours,
+  userRecentHours,
+  userRecCount
+}: {
+  steamConnected: boolean;
+  userDisplayName: string;
+  userAvatarUrl?: string;
+  userLibrarySize: number;
+  userTotalHours: number;
+  userRecentHours: number;
+  userRecCount: number;
+}) {
   const [friendInput, setFriendInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -87,108 +104,131 @@ export default function PlayTogetherClient({ steamConnected }: { steamConnected:
 
           {error ? <p className="mb-6 text-sm text-error">{error}</p> : null}
 
-          {data ? (
-            <div className="space-y-12">
-              {data.friendLibraryIssue ? (
-                <div
-                  className="rounded-xl border border-tertiary/40 bg-surface-container-high px-4 py-3 text-sm text-on-surface-variant"
-                  role="status"
-                >
-                  {data.friendLibraryIssue}
-                </div>
-              ) : null}
-              <div className="grid gap-8 lg:grid-cols-2">
-                <section className="rounded-xl bg-surface-container-low p-6">
-                  <h2 className="font-label text-xs uppercase tracking-widest text-secondary-fixed-dim">You</h2>
-                  <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
-                    <div>
-                      <dt className="text-on-surface-variant">Library</dt>
-                      <dd className="font-bold">{data.userLibrarySize} games</dd>
-                    </div>
-                    <div>
-                      <dt className="text-on-surface-variant">Lifetime</dt>
-                      <dd className="font-bold">{data.userTotalHours}h</dd>
-                    </div>
-                    <div>
-                      <dt className="text-on-surface-variant">2 weeks</dt>
-                      <dd className="font-bold">{data.userRecentHours}h</dd>
-                    </div>
-                    <div>
-                      <dt className="text-on-surface-variant">Suggestions</dt>
-                      <dd className="font-bold">{data.userRecCount}</dd>
-                    </div>
-                  </dl>
-                  <p className="mt-4 text-sm leading-relaxed text-on-surface-variant">{data.userInsight}</p>
-                </section>
-
-                <section className="rounded-xl bg-surface-container-low p-6">
-                  <h2 className="font-label text-xs uppercase tracking-widest text-secondary-fixed-dim">
-                    Friend {data.friendSteamMasked ? `(${data.friendSteamMasked})` : ""}
-                  </h2>
-                  <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
-                    <div>
-                      <dt className="text-on-surface-variant">Library</dt>
-                      <dd className="font-bold">{data.friendLibrarySize} games</dd>
-                    </div>
-                    <div>
-                      <dt className="text-on-surface-variant">Lifetime</dt>
-                      <dd className="font-bold">{data.friendTotalHours}h</dd>
-                    </div>
-                    <div>
-                      <dt className="text-on-surface-variant">2 weeks</dt>
-                      <dd className="font-bold">{data.friendRecentHours}h</dd>
-                    </div>
-                    <div>
-                      <dt className="text-on-surface-variant">Suggestions</dt>
-                      <dd className="font-bold">{data.friendRecCount}</dd>
-                    </div>
-                  </dl>
-                  <p className="mt-4 text-sm leading-relaxed text-on-surface-variant">{data.friendInsight}</p>
-                </section>
+          <div className="space-y-12">
+            {data?.friendLibraryIssue ? (
+              <div
+                className="rounded-xl border border-tertiary/40 bg-surface-container-high px-4 py-3 text-sm text-on-surface-variant"
+                role="status"
+              >
+                {data.friendLibraryIssue}
               </div>
+            ) : null}
 
-              <section className="rounded-xl bg-surface-container p-6">
-                <h2 className="text-lg font-bold">Overlap</h2>
-                <p className="mt-2 text-sm text-on-surface-variant">
-                  Shared long-term genres:{" "}
-                  {data.sharedGenreOverlap.length ? data.sharedGenreOverlap.join(", ") : "—"}
-                </p>
-                <p className="mt-2 text-sm text-on-surface-variant">
-                  Both lists agree on {data.sharedCount} suggestions · you-only {data.youOnlyCount} · friend-only{" "}
-                  {data.friendOnlyCount}
+            <div className="grid gap-8 lg:grid-cols-2">
+              <section className="rounded-xl bg-surface-container-low p-6">
+                <div className="flex items-center gap-3">
+                  {userAvatarUrl ? (
+                    <span className="relative size-10 overflow-hidden rounded-full ring-2 ring-outline-variant/30">
+                      <Image src={userAvatarUrl} alt="" fill className="object-cover" sizes="40px" />
+                    </span>
+                  ) : null}
+                  <div className="text-sm font-bold text-on-surface">{userDisplayName}</div>
+                </div>
+                <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <dt className="text-on-surface-variant">Library</dt>
+                    <dd className="font-bold">{userLibrarySize} games</dd>
+                  </div>
+                  <div>
+                    <dt className="text-on-surface-variant">Lifetime</dt>
+                    <dd className="font-bold">{userTotalHours}h</dd>
+                  </div>
+                  <div>
+                    <dt className="text-on-surface-variant">2 weeks</dt>
+                    <dd className="font-bold">{userRecentHours}h</dd>
+                  </div>
+                  <div>
+                    <dt className="text-on-surface-variant">Suggestions</dt>
+                    <dd className="font-bold">{userRecCount}</dd>
+                  </div>
+                </dl>
+                <p className="mt-4 text-sm leading-relaxed text-on-surface-variant">
+                  {data?.userInsight ?? "Enter a Steam profile above to start a 1:1 comparison."}
                 </p>
               </section>
 
-              <section>
-                <h2 className="mb-4 text-2xl font-bold">You both might like</h2>
-                <div className="grid gap-3 md:grid-cols-2">
-                  {data.sharedRecommendations.map((g) => (
-                    <PlayTogetherGameRow key={g.id} game={g} />
-                  ))}
+              <section className="rounded-xl bg-surface-container-low p-6">
+                <div className="flex items-center gap-3">
+                  {data?.friendAvatarUrl ? (
+                    <span className="relative size-10 overflow-hidden rounded-full ring-2 ring-outline-variant/30">
+                      <Image src={data.friendAvatarUrl} alt="" fill className="object-cover" sizes="40px" />
+                    </span>
+                  ) : null}
+                  {data?.friendPersonaName ? (
+                    <div className="text-sm font-bold text-on-surface">{data.friendPersonaName}</div>
+                  ) : (
+                    <div className="text-sm text-on-surface-variant">No profile loaded yet.</div>
+                  )}
                 </div>
-                {data.sharedRecommendations.length === 0 ? (
-                  <p className="text-sm text-on-surface-variant">No overlapping recommendations this run.</p>
-                ) : null}
-              </section>
-
-              <section>
-                <h2 className="mb-4 text-2xl font-bold">Co-op together</h2>
-                <p className="mb-4 text-sm text-on-surface-variant">
-                  Neither of you owns these; biased toward online co-op signals and your combined taste.
+                <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <dt className="text-on-surface-variant">Library</dt>
+                    <dd className="font-bold">{data?.friendLibrarySize ?? 0} games</dd>
+                  </div>
+                  <div>
+                    <dt className="text-on-surface-variant">Lifetime</dt>
+                    <dd className="font-bold">{data?.friendTotalHours ?? 0}h</dd>
+                  </div>
+                  <div>
+                    <dt className="text-on-surface-variant">2 weeks</dt>
+                    <dd className="font-bold">{data?.friendRecentHours ?? 0}h</dd>
+                  </div>
+                  <div>
+                    <dt className="text-on-surface-variant">Suggestions</dt>
+                    <dd className="font-bold">{data?.friendRecCount ?? 0}</dd>
+                  </div>
+                </dl>
+                <p className="mt-4 text-sm leading-relaxed text-on-surface-variant">
+                  {data?.friendInsight ?? "0% until you compare."}
                 </p>
-                <div className="grid gap-3 md:grid-cols-2">
-                  {data.coopRecommendations.map((g) => (
-                    <PlayTogetherGameRow key={g.id} game={g} />
-                  ))}
-                </div>
-                {data.coopRecommendations.length === 0 ? (
-                  <p className="text-sm text-on-surface-variant">
-                    No co-op-style picks surfaced — try again after more playtime data or a different friend.
-                  </p>
-                ) : null}
               </section>
             </div>
-          ) : null}
+
+            {data ? (
+              <>
+                <section className="rounded-xl bg-surface-container p-6">
+                  <h2 className="text-lg font-bold">Overlap</h2>
+                  <p className="mt-2 text-sm text-on-surface-variant">
+                    Shared long-term genres:{" "}
+                    {data.sharedGenreOverlap.length ? data.sharedGenreOverlap.join(", ") : "—"}
+                  </p>
+                  <p className="mt-2 text-sm text-on-surface-variant">
+                    Both lists agree on {data.sharedCount} suggestions · you-only {data.youOnlyCount} · other-only{" "}
+                    {data.friendOnlyCount}
+                  </p>
+                </section>
+
+                <section>
+                  <h2 className="mb-4 text-2xl font-bold">You both might like</h2>
+                  <div className="grid gap-3 md:grid-cols-2">
+                    {data.sharedRecommendations.map((g) => (
+                      <PlayTogetherGameRow key={g.id} game={g} />
+                    ))}
+                  </div>
+                  {data.sharedRecommendations.length === 0 ? (
+                    <p className="text-sm text-on-surface-variant">No overlapping recommendations this run.</p>
+                  ) : null}
+                </section>
+
+                <section>
+                  <h2 className="mb-4 text-2xl font-bold">Co-op together</h2>
+                  <p className="mb-4 text-sm text-on-surface-variant">
+                    Neither of you owns these; biased toward online co-op signals and your combined taste.
+                  </p>
+                  <div className="grid gap-3 md:grid-cols-2">
+                    {data.coopRecommendations.map((g) => (
+                      <PlayTogetherGameRow key={g.id} game={g} />
+                    ))}
+                  </div>
+                  {data.coopRecommendations.length === 0 ? (
+                    <p className="text-sm text-on-surface-variant">
+                      No co-op-style picks surfaced — try again after more playtime data or a different profile.
+                    </p>
+                  ) : null}
+                </section>
+              </>
+            ) : null}
+          </div>
         </>
       )}
     </main>

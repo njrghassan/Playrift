@@ -18,10 +18,12 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const fontVars = [manrope.variable, spaceGrotesk.variable].sort().join(" ");
+
   return (
     <html lang="en" className="dark">
       <body
-        className={`${manrope.variable} ${spaceGrotesk.variable} font-body antialiased tracking-tight bg-surface text-on-surface selection:bg-primary-container selection:text-on-primary-container`}
+        className={`${fontVars} font-body antialiased tracking-tight bg-surface text-on-surface selection:bg-primary-container selection:text-on-primary-container`}
       >
         {children}
       </body>

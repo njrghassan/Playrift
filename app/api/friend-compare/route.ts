@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { FriendCompareResponse } from "@/lib/friendCompare";
 import { steamLibraryHours } from "@/lib/steamLibraryStats";
 import { compareFriendProfilesAndCoop } from "@/services/friendCompareService";
-import { fetchOwnedPlayableGames, resolveVanityToSteam64 } from "@/services/steamService";
+import { fetchOwnedPlayableGames, fetchPlayerSummary, resolveVanityToSteam64 } from "@/services/steamService";
 import { NextResponse } from "next/server";
 
 export const maxDuration = 120;
@@ -54,6 +54,8 @@ export async function POST(request: Request) {
       fetchOwnedPlayableGames(friendSteamId)
     ]);
 
+    const friendSummary = await fetchPlayerSummary(friendSteamId);
+
     const compared = await compareFriendProfilesAndCoop(userGames, friendGames, userBlacklist);
     const userHours = steamLibraryHours(userGames);
     const friendHours = steamLibraryHours(friendGames);
@@ -69,6 +71,8 @@ export async function POST(request: Request) {
     const payload: FriendCompareResponse = {
       friendSteamMasked: friendMask,
       friendLibraryIssue,
+      friendPersonaName: friendSummary?.personaname ?? null,
+      friendAvatarUrl: friendSummary?.avatarfull ?? friendSummary?.avatarmedium ?? friendSummary?.avatar ?? null,
       userInsight: compared.userInsight,
       friendInsight: compared.friendInsight,
       userLibrarySize: userGames.length,

@@ -3,6 +3,14 @@ import { filterOwnedGamesToPlayableGames } from "@/services/steamStoreGameFilter
 
 const BASE = "https://api.steampowered.com";
 
+export type SteamPlayerSummary = {
+  steamid: string;
+  personaname?: string;
+  avatar?: string;
+  avatarmedium?: string;
+  avatarfull?: string;
+};
+
 /** Resolves a Steam custom URL slug to 17-digit SteamID64 (ResolveVanityURL). */
 export async function resolveVanityToSteam64(vanity: string): Promise<string> {
   const apiKey = process.env.STEAM_API_KEY;
@@ -60,6 +68,24 @@ export async function fetchOwnedGames(steamId: string): Promise<SteamOwnedGame[]
   throw new Error(
     "Unable to fetch Steam games. Set Steam → Profile → Privacy → Game details to Public so anyone can load the library."
   );
+}
+
+/** Fetches a public Steam profile summary (avatar + persona) by SteamID64. */
+export async function fetchPlayerSummary(steamId: string): Promise<SteamPlayerSummary | null> {
+  const apiKey = process.env.STEAM_API_KEY;
+  if (!apiKey) throw new Error("STEAM_API_KEY is missing.");
+
+  const url = new URL(`${BASE}/ISteamUser/GetPlayerSummaries/v0002/`);
+  url.searchParams.set("key", apiKey);
+  url.searchParams.set("steamids", steamId);
+
+  const response = await fetch(url, { next: { revalidate: 60 * 30 } });
+  if (!response.ok) return null;
+  const payload = await response.json();
+  const players = payload?.response?.players as SteamPlayerSummary[] | undefined;
+  const p = players?.[0];
+  if (!p?.steamid) return null;
+  return p;
 }
 
 /** Owned games with non-game / utility Steam listings removed (for sessions + recommender). */

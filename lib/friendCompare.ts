@@ -5,6 +5,8 @@ export type FriendCompareResponse = {
   friendSteamMasked?: string;
   /** Shown when Steam returned an empty library (often private / friends-only game details). */
   friendLibraryIssue?: string | null;
+  friendPersonaName?: string | null;
+  friendAvatarUrl?: string | null;
   userInsight: string;
   friendInsight: string;
   userLibrarySize: number;
