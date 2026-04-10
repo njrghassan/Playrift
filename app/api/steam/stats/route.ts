@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { SteamOwnedGame } from "@/lib/types";
-import { fetchOwnedGames } from "@/services/steamService";
+import { fetchOwnedPlayableGames } from "@/services/steamService";
 import { NextResponse } from "next/server";
 
 type SessionRow = {
@@ -9,7 +9,8 @@ type SessionRow = {
   recentHours: number;
   totalHours: number;
   lastPlayedAt: number | null;
-  imageUrl: string;
+  img_logo_url?: string;
+  img_icon_url?: string;
 };
 
 function toHours(minutes: number) {
@@ -81,7 +82,8 @@ function buildSessions(games: SteamOwnedGame[]): SessionRow[] {
     recentHours: toHours(g.playtime_2weeks ?? 0),
     totalHours: toHours(g.playtime_forever),
     lastPlayedAt: g.rtime_last_played ?? null,
-    imageUrl: `https://cdn.akamai.steamstatic.com/steam/apps/${g.appid}/header.jpg`
+    img_logo_url: g.img_logo_url,
+    img_icon_url: g.img_icon_url
   }));
 }
 
@@ -98,7 +100,7 @@ export async function GET() {
       return NextResponse.json({ error: "Steam account is not connected." }, { status: 400 });
     }
 
-    const games = await fetchOwnedGames(profile.steam_id);
+    const games = await fetchOwnedPlayableGames(profile.steam_id);
     const totalMinutes = games.reduce((sum, g) => sum + g.playtime_forever, 0);
     const recentMinutes = games.reduce((sum, g) => sum + (g.playtime_2weeks ?? 0), 0);
 

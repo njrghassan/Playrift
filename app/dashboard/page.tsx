@@ -6,6 +6,7 @@ import DashboardClient from "./DashboardClient";
 
 export default async function DashboardPage() {
   let user: { id: string; email?: string } | null = null;
+  let userDisplayName: string | undefined;
   let profile: { steam_id?: string | null } | null = null;
   let blacklist: { id: number; game_name: string }[] = [];
 
@@ -18,6 +19,10 @@ export default async function DashboardPage() {
     if (!currentUser) redirect("/login");
 
     user = currentUser;
+    const meta = currentUser.user_metadata as { display_name?: string } | undefined;
+    if (typeof meta?.display_name === "string" && meta.display_name.trim()) {
+      userDisplayName = meta.display_name.trim();
+    }
 
     const { data: profileData } = await supabase
       .from("users")
@@ -62,6 +67,7 @@ export default async function DashboardPage() {
       <DashboardNav />
       <DashboardClient
         userEmail={user?.email}
+        userDisplayName={userDisplayName}
         steamConnected={Boolean(profile?.steam_id)}
         blacklist={blacklist}
       />

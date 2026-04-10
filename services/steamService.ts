@@ -1,4 +1,5 @@
 import { SteamOwnedGame } from "@/lib/types";
+import { filterOwnedGamesToPlayableGames } from "@/services/steamStoreGameFilter";
 
 const BASE = "https://api.steampowered.com";
 
@@ -47,4 +48,10 @@ export async function fetchOwnedGames(steamId: string): Promise<SteamOwnedGame[]
   }
 
   return games;
+}
+
+/** Owned games with non-game / utility Steam listings removed (for sessions + recommender). */
+export async function fetchOwnedPlayableGames(steamId: string): Promise<SteamOwnedGame[]> {
+  const games = await fetchOwnedGames(steamId);
+  return filterOwnedGamesToPlayableGames(games);
 }

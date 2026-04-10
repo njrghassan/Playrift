@@ -3,7 +3,7 @@ import { countryToCurrency, isSupportedCurrency } from "@/lib/currency";
 import { RecommendedGame } from "@/lib/types";
 import { getCheapestPriceUsdByTitle } from "@/services/cheapSharkService";
 import { convertFromUsd } from "@/services/exchangeRateService";
-import { fetchOwnedGames } from "@/services/steamService";
+import { fetchOwnedPlayableGames } from "@/services/steamService";
 import { generateRecommendations } from "@/services/recommendationService";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
@@ -66,7 +66,7 @@ export async function GET(request: NextRequest) {
       request.nextUrl.searchParams.get("currency")
     );
 
-    const ownedGames = await fetchOwnedGames(profile.steam_id);
+    const ownedGames = await fetchOwnedPlayableGames(profile.steam_id);
     const { recommendations, recentTopGenres, longTopGenres } = await generateRecommendations(
       ownedGames,
       (blacklistRows ?? []).map((row) => row.game_name)

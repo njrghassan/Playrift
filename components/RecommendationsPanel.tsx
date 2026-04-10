@@ -2,8 +2,16 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { DISPLAY_CURRENCIES, isSupportedCurrency } from "@/lib/currency";
+import {
+  positivePercentFromSegments,
+  resolvePositiveReviewPercent,
+  scoreToStarPercent,
+  type RawgRatingBucket
+} from "@/lib/rawgRatings";
 import { RecommendedGame } from "@/lib/types";
+import { RawgReviewBlock } from "@/components/RawgReviewBlock";
 
 const CURRENCY_PREF_KEY = "playrift_currency_pref";
 
@@ -20,9 +28,18 @@ type ApiData = {
   currency: string;
 };
 
-type SortOption = "match-desc" | "match-asc" | "popularity-desc" | "popularity-asc" | "name-asc" | "name-desc";
+type SortOption =
+  | "match-desc"
+  | "match-asc"
+  | "popularity-desc"
+  | "popularity-asc"
+  | "name-asc"
+  | "name-desc"
+  | "reviews-desc"
+  | "reviews-asc";
 
 const INITIAL_VISIBLE_COUNT = 3;
+const SEARCH_DEBOUNCE_MS = 350;
 
 function popularityValue(g: RecommendedGame): number {
   return g.added ?? g.ratings_count ?? 0;
@@ -58,6 +75,34 @@ function SearchIcon({ className }: { className?: string }) {
   );
 }
 
+function reviewPercentForSort(g: RecommendedGame): number | null {
+  return (
+    g.positive_review_percent ??
+    positivePercentFromSegments(g.ratings as RawgRatingBucket[] | undefined) ??
+    scoreToStarPercent(g.rating, g.rating_top)
+  );
+}
+
+function compareByReviewsDesc(a: RecommendedGame, b: RecommendedGame): number {
+  const pa = reviewPercentForSort(a);
+  const pb = reviewPercentForSort(b);
+  if (pa == null && pb == null) return (b.ratings_count ?? 0) - (a.ratings_count ?? 0);
+  if (pa == null) return 1;
+  if (pb == null) return -1;
+  if (pb !== pa) return pb - pa;
+  return (b.ratings_count ?? 0) - (a.ratings_count ?? 0);
+}
+
+function compareByReviewsAsc(a: RecommendedGame, b: RecommendedGame): number {
+  const pa = reviewPercentForSort(a);
+  const pb = reviewPercentForSort(b);
+  if (pa == null && pb == null) return (a.ratings_count ?? 0) - (b.ratings_count ?? 0);
+  if (pa == null) return 1;
+  if (pb == null) return -1;
+  if (pa !== pb) return pa - pb;
+  return (a.ratings_count ?? 0) - (b.ratings_count ?? 0);
+}
+
 export function RecommendationsPanel({ refreshKey }: { refreshKey: number }) {
   const [data, setData] = useState<ApiData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -68,6 +113,9 @@ export function RecommendationsPanel({ refreshKey }: { refreshKey: number }) {
   const [showAllGames, setShowAllGames] = useState(false);
   const [currencyPref, setCurrencyPref] = useState<string | null>(null);
   const [prefsReady, setPrefsReady] = useState(false);
+  const [searchHits, setSearchHits] = useState<RecommendedGame[]>([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
 
   useEffect(() => {
     setShowAllGames(false);
@@ -121,11 +169,17 @@ export function RecommendationsPanel({ refreshKey }: { refreshKey: number }) {
       .map(([slug, name]) => ({ slug, name }));
   }, [data?.recommendations]);
 
-  const filteredSorted = useMemo(() => {
+  const mergedList = useMemo(() => {
     const recs = data?.recommendations ?? [];
     const q = query.trim().toLowerCase();
+    const mainIds = new Set(recs.map((g) => g.id));
 
-    let list = recs.filter((game) => {
+    let extras = searchHits.filter((g) => !mainIds.has(g.id));
+    if (genreSlug) {
+      extras = extras.filter((g) => g.genres.some((x) => x.slug === genreSlug));
+    }
+
+    let base = recs.filter((game) => {
       if (genreSlug && !game.genres.some((g) => g.slug === genreSlug)) return false;
       if (!q) return true;
       if (game.name.toLowerCase().includes(q)) return true;
@@ -134,9 +188,30 @@ export function RecommendationsPanel({ refreshKey }: { refreshKey: number }) {
       return false;
     });
 
-    const maxScore = Math.max(1, ...list.map((g) => g.score));
+    if (q.length >= 2) {
+      base = [...base, ...extras];
+    }
 
-    list = [...list].sort((a, b) => {
+    return base;
+  }, [data?.recommendations, query, genreSlug, searchHits]);
+
+  const filteredSorted = useMemo(() => {
+    const list = mergedList;
+    const q = query.trim().toLowerCase();
+
+    let filtered = list.filter((game) => {
+      if (genreSlug && !game.genres.some((g) => g.slug === genreSlug)) return false;
+      if (!q) return true;
+      if (game.name.toLowerCase().includes(q)) return true;
+      if (game.reason.toLowerCase().includes(q)) return true;
+      if (game.genres.some((g) => g.name.toLowerCase().includes(q))) return true;
+      if (game.search_hit_kind) return true;
+      return false;
+    });
+
+    const maxScore = Math.max(1, ...filtered.filter((g) => !g.search_hit_kind).map((g) => g.score));
+
+    filtered = [...filtered].sort((a, b) => {
       switch (sort) {
         case "match-desc":
           return b.score - a.score;
@@ -150,19 +225,59 @@ export function RecommendationsPanel({ refreshKey }: { refreshKey: number }) {
           return a.name.localeCompare(b.name);
         case "name-desc":
           return b.name.localeCompare(a.name);
+        case "reviews-desc":
+          return compareByReviewsDesc(a, b);
+        case "reviews-asc":
+          return compareByReviewsAsc(a, b);
         default:
           return 0;
       }
     });
 
-    return { list, maxScore };
-  }, [data?.recommendations, query, genreSlug, sort]);
+    return { list: filtered, maxScore };
+  }, [mergedList, query, genreSlug, sort]);
 
   const visibleGames = showAllGames
     ? filteredSorted.list
     : filteredSorted.list.slice(0, INITIAL_VISIBLE_COUNT);
   const hiddenCount = Math.max(0, filteredSorted.list.length - INITIAL_VISIBLE_COUNT);
   const showLoading = !prefsReady || loading;
+
+  useEffect(() => {
+    const q = query.trim();
+    if (q.length < 2) {
+      setSearchHits([]);
+      setSearchLoading(false);
+      setSearchError(null);
+      return;
+    }
+
+    let cancelled = false;
+    const t = window.setTimeout(async () => {
+      setSearchLoading(true);
+      setSearchError(null);
+      try {
+        const params = new URLSearchParams({ q });
+        if (currencyPref != null) params.set("currency", currencyPref);
+        const response = await fetch(`/api/recommendations/search?${params.toString()}`);
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload.error ?? "Search failed.");
+        if (!cancelled) setSearchHits(payload.games ?? []);
+      } catch (e) {
+        if (!cancelled) {
+          setSearchError(e instanceof Error ? e.message : "Search failed.");
+          setSearchHits([]);
+        }
+      } finally {
+        if (!cancelled) setSearchLoading(false);
+      }
+    }, SEARCH_DEBOUNCE_MS);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(t);
+    };
+  }, [query, currencyPref, refreshKey]);
 
   return (
     <div>
@@ -199,6 +314,10 @@ export function RecommendationsPanel({ refreshKey }: { refreshKey: number }) {
                 aria-label="Search recommendations"
                 role="searchbox"
               />
+              {searchLoading ? (
+                <p className="mt-1 text-xs text-on-surface-variant">Searching catalog…</p>
+              ) : null}
+              {searchError ? <p className="mt-1 text-xs text-error">{searchError}</p> : null}
             </div>
             <div className="flex w-full flex-col flex-wrap gap-3 sm:flex-row sm:items-end sm:justify-end">
               <label className="flex min-w-[10rem] flex-1 flex-col gap-1 sm:max-w-[12rem]">
@@ -231,6 +350,8 @@ export function RecommendationsPanel({ refreshKey }: { refreshKey: number }) {
                   <option value="match-asc">Match (low → high)</option>
                   <option value="popularity-desc">Popularity (high → low)</option>
                   <option value="popularity-asc">Popularity (low → high)</option>
+                  <option value="reviews-desc">Reviews (high → low)</option>
+                  <option value="reviews-asc">Reviews (low → high)</option>
                   <option value="name-asc">Name (A → Z)</option>
                   <option value="name-desc">Name (Z → A)</option>
                 </select>
@@ -270,91 +391,106 @@ export function RecommendationsPanel({ refreshKey }: { refreshKey: number }) {
             </p>
           ) : (
             <>
-            <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-              {visibleGames.map((game) => {
-                const pct = Math.round((game.score / filteredSorted.maxScore) * 100);
-                const matchLabel = `${pct}% Match`;
-                const tag = game.genres[0]?.name ?? "Match";
+              <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+                {visibleGames.map((game) => {
+                  const isExtra = Boolean(game.search_hit_kind);
+                  const pct = isExtra
+                    ? game.search_hit_kind === "library"
+                      ? 0
+                      : game.search_hit_kind === "blacklist"
+                        ? 0
+                        : 0
+                    : Math.round((game.score / filteredSorted.maxScore) * 100);
+                  const matchLabel = isExtra
+                    ? game.search_hit_kind === "library"
+                      ? "In library"
+                      : game.search_hit_kind === "blacklist"
+                        ? "Blacklisted"
+                        : "0% match"
+                    : `${pct}% Match`;
+                  const tag = game.genres[0]?.name ?? "Match";
+                  const reviewPct =
+                    game.positive_review_percent ??
+                    resolvePositiveReviewPercent(game.ratings, game.rating, game.rating_top);
 
-                return (
-                  <article
-                    key={game.id}
-                    className="group flex flex-col overflow-hidden rounded-xl bg-surface-container shadow-2xl transition-shadow duration-300 hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.55)]"
-                  >
-                    <div className="relative h-48 shrink-0 overflow-hidden rounded-t-xl">
-                      <div className="absolute inset-0 bg-surface-container-highest">
-                        {game.background_image ? (
-                          <Image
-                            src={game.background_image}
-                            alt={game.name}
-                            fill
-                            className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                            sizes="(max-width: 768px) 100vw, 33vw"
-                          />
-                        ) : null}
+                  return (
+                    <article
+                      key={`${game.id}-${game.search_hit_kind ?? "rec"}`}
+                      className={`group flex flex-col overflow-hidden rounded-xl bg-surface-container shadow-2xl transition-shadow duration-300 hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.55)] ${
+                        isExtra ? "ring-2 ring-primary/40" : ""
+                      }`}
+                    >
+                      <div className="relative h-48 shrink-0 overflow-hidden rounded-t-xl">
+                        <div className="absolute inset-0 bg-surface-container-highest">
+                          {game.background_image ? (
+                            <Image
+                              src={game.background_image}
+                              alt={game.name}
+                              fill
+                              className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                              sizes="(max-width: 768px) 100vw, 33vw"
+                            />
+                          ) : null}
+                        </div>
+                        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-surface-container to-transparent" />
+                        <div className="absolute bottom-4 left-4 flex flex-wrap gap-2">
+                          <span className="font-label rounded-full bg-primary-container/80 px-3 py-1 text-[10px] font-bold uppercase text-on-primary-container backdrop-blur-md">
+                            {matchLabel}
+                          </span>
+                          <span className="font-label rounded-full bg-surface-container-highest/80 px-3 py-1 text-[10px] uppercase text-on-surface backdrop-blur-md">
+                            {tag}
+                          </span>
+                        </div>
                       </div>
-                      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-surface-container to-transparent" />
-                      <div className="absolute bottom-4 left-4 flex flex-wrap gap-2">
-                        <span className="font-label rounded-full bg-primary-container/80 px-3 py-1 text-[10px] font-bold uppercase text-on-primary-container backdrop-blur-md">
-                          {matchLabel}
-                        </span>
-                        <span className="font-label rounded-full bg-surface-container-highest/80 px-3 py-1 text-[10px] uppercase text-on-surface backdrop-blur-md">
-                          {tag}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex flex-grow flex-col p-6">
-                      <h4 className="mb-2 text-xl font-bold">{game.name}</h4>
-                      <p className="mb-6 flex-grow text-sm leading-relaxed text-on-surface-variant">
-                        {game.reason}
-                      </p>
-                      <div className="mt-auto space-y-3 border-t border-outline-variant/10 pt-6">
-                        <div className="flex items-baseline justify-between gap-3">
-                          <div>
-                            <div className="font-label text-[10px] uppercase tracking-wider text-outline">
-                              From (deals) · {data.currency}
-                            </div>
-                            <div className="text-xl font-black tabular-nums text-tertiary">
-                              {formatMoney(game.price, data.currency)}
+                      <div className="flex flex-grow flex-col p-6">
+                        <h4 className="mb-2 text-xl font-bold">{game.name}</h4>
+                        <p className="mb-6 flex-grow text-sm leading-relaxed text-on-surface-variant">
+                          {game.reason}
+                        </p>
+                        <div className="mt-auto space-y-3 border-t border-outline-variant/10 pt-6">
+                          <div className="flex items-baseline justify-between gap-3">
+                            <div>
+                              <div className="font-label text-[10px] uppercase tracking-wider text-outline">
+                                From (deals) · {data.currency}
+                              </div>
+                              <div className="text-xl font-black tabular-nums text-tertiary">
+                                {formatMoney(game.price, data.currency)}
+                              </div>
                             </div>
                           </div>
-                          <a
-                            href={`https://www.cheapshark.com/search?storeID=1&pageSize=5&searchTitle=${encodeURIComponent(game.name)}`}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="font-label shrink-0 text-xs font-semibold text-primary underline-offset-2 hover:underline"
-                          >
-                            Deals
-                          </a>
-                        </div>
-                        <div className="flex items-center justify-between gap-3">
-                          <span className="text-lg font-black text-on-surface">Explore</span>
-                          <a
-                            href={`https://rawg.io/games/${game.slug}`}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="rounded bg-primary px-4 py-2 font-label text-xs font-bold uppercase tracking-widest text-on-primary transition-all hover:shadow-[0_0_15px_rgba(192,193,255,0.4)] active:scale-95"
-                          >
-                            Explore Rift
-                          </a>
+                          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                            <RawgReviewBlock
+                              variant="compact"
+                              ratings={game.ratings}
+                              rating={game.rating}
+                              rating_top={game.rating_top}
+                              ratings_count={game.ratings_count}
+                              positiveOverride={reviewPct}
+                            />
+                            <Link
+                              href={`/dashboard/games/${game.slug}`}
+                              className="inline-flex shrink-0 items-center justify-center rounded bg-primary px-4 py-2.5 font-label text-xs font-bold uppercase tracking-widest text-on-primary transition-all hover:shadow-[0_0_15px_rgba(192,193,255,0.4)] active:scale-95 sm:self-end"
+                            >
+                              Explore Rift
+                            </Link>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </article>
-                );
-              })}
-            </div>
-            {hiddenCount > 0 ? (
-              <div className="mt-8 flex justify-center">
-                <button
-                  type="button"
-                  onClick={() => setShowAllGames((v) => !v)}
-                  className="rounded-lg bg-surface-container-low px-6 py-3 font-label text-sm font-bold uppercase tracking-widest text-primary ring-1 ring-outline-variant/30 transition hover:bg-surface-container-high hover:ring-primary/40"
-                >
-                  {showAllGames ? "Show less" : `Show more (${hiddenCount} more)`}
-                </button>
+                    </article>
+                  );
+                })}
               </div>
-            ) : null}
+              {hiddenCount > 0 ? (
+                <div className="mt-8 flex justify-center">
+                  <button
+                    type="button"
+                    onClick={() => setShowAllGames((v) => !v)}
+                    className="rounded-lg bg-surface-container-low px-6 py-3 font-label text-sm font-bold uppercase tracking-widest text-primary ring-1 ring-outline-variant/30 transition hover:bg-surface-container-high hover:ring-primary/40"
+                  >
+                    {showAllGames ? "Show less" : `Show more (${hiddenCount} more)`}
+                  </button>
+                </div>
+              ) : null}
             </>
           )}
         </>

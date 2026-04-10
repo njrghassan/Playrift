@@ -1,3 +1,4 @@
+import { resolvePositiveReviewPercent } from "@/lib/rawgRatings";
 import { GenreCount, RecommendedGame, SteamOwnedGame } from "@/lib/types";
 import { getFirstRawgMatchByName, getGamesByGenres, RawgGameSummary } from "@/services/rawgService";
 
@@ -19,7 +20,7 @@ function splitProfiles(games: SteamOwnedGame[]): ProfileResult {
   return { topLongTermGames, recentGames };
 }
 
-function normalizeGameTitle(name: string): string {
+export function normalizeGameTitle(name: string): string {
   return name
     .toLowerCase()
     .normalize("NFKD")
@@ -55,7 +56,9 @@ async function mapInBatches<T, R>(items: T[], batchSize: number, fn: (item: T) =
   return out;
 }
 
-async function buildOwnedLibraryRawgLookup(ownedGames: SteamOwnedGame[]): Promise<Map<string, RawgGameSummary | null>> {
+export async function buildOwnedLibraryRawgLookup(
+  ownedGames: SteamOwnedGame[]
+): Promise<Map<string, RawgGameSummary | null>> {
   const uniqueNames = [...new Set(ownedGames.map((g) => g.name))];
   const pairs = await mapInBatches(uniqueNames, 10, async (steamName) => {
     const match = await getFirstRawgMatchByName(steamName);
@@ -68,7 +71,10 @@ async function buildOwnedLibraryRawgLookup(ownedGames: SteamOwnedGame[]): Promis
   return map;
 }
 
-function buildOwnershipSets(ownedGames: SteamOwnedGame[], rawgBySteamName: Map<string, RawgGameSummary | null>) {
+export function buildOwnershipSets(
+  ownedGames: SteamOwnedGame[],
+  rawgBySteamName: Map<string, RawgGameSummary | null>
+) {
   const ownedRawgIds = new Set<number>();
   const ownedRawgSlugs = new Set<string>();
   const ownedNormalizedTitles = new Set<string>();
@@ -87,7 +93,13 @@ function buildOwnershipSets(ownedGames: SteamOwnedGame[], rawgBySteamName: Map<s
   return { ownedRawgIds, ownedRawgSlugs, ownedNormalizedTitles };
 }
 
-function isAlreadyInLibrary(
+export async function buildLibraryOwnershipContext(ownedGames: SteamOwnedGame[]) {
+  const rawgBySteamName = await buildOwnedLibraryRawgLookup(ownedGames);
+  const sets = buildOwnershipSets(ownedGames, rawgBySteamName);
+  return { rawgBySteamName, ...sets };
+}
+
+export function isAlreadyInLibrary(
   game: RawgGameSummary,
   ownedRawgIds: Set<number>,
   ownedRawgSlugs: Set<string>,
@@ -166,10 +178,16 @@ export async function generateRecommendations(
     .map((game) => {
       const genreSlugs = game.genres.map((g) => g.slug);
       const score = scoreGame(genreSlugs, longTermCount, recentCount);
+      const positive_review_percent = resolvePositiveReviewPercent(
+        game.ratings,
+        game.rating,
+        game.rating_top
+      );
       return {
         ...game,
         score,
-        reason: buildReason(genreSlugs, recentTopGenres, longTopGenres)
+        reason: buildReason(genreSlugs, recentTopGenres, longTopGenres),
+        positive_review_percent
       };
     })
     .sort((a, b) => {

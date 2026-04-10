@@ -1,11 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import { BlacklistManager } from "@/components/BlacklistManager";
+import { SteamSessionImage } from "@/components/SteamSessionImage";
 import { RecommendationsPanel } from "@/components/RecommendationsPanel";
-import { SteamConnectForm } from "@/components/SteamConnectForm";
-import { SteamConnectedCard } from "@/components/SteamConnectedCard";
 import { GamePromptBox } from "@/components/GamePromptBox";
 
 type BlacklistItem = { id: number; game_name: string };
@@ -16,7 +15,8 @@ type SteamSession = {
   recentHours: number;
   totalHours: number;
   lastPlayedAt: number | null;
-  imageUrl: string;
+  img_logo_url?: string;
+  img_icon_url?: string;
 };
 type SteamStats = {
   totalGames: number;
@@ -41,26 +41,27 @@ function formatRelativeTime(unixTs: number | null): string {
 
 export default function DashboardClient({
   userEmail,
+  userDisplayName,
   steamConnected,
   blacklist
 }: {
   userEmail?: string;
+  userDisplayName?: string;
   steamConnected: boolean;
   blacklist: BlacklistItem[];
 }) {
   const [isSteamConnected, setIsSteamConnected] = useState(steamConnected);
   const [recommendationsRefreshKey, setRecommendationsRefreshKey] = useState(0);
-  const [statsRefreshKey, setStatsRefreshKey] = useState(0);
   const [stats, setStats] = useState<SteamStats | null>(null);
   const [statsError, setStatsError] = useState<string | null>(null);
   const [statsLoading, setStatsLoading] = useState(false);
 
+  useEffect(() => {
+    setIsSteamConnected(steamConnected);
+  }, [steamConnected]);
+
   function refreshRecommendations() {
     setRecommendationsRefreshKey((v) => v + 1);
-  }
-
-  function refreshStats() {
-    setStatsRefreshKey((v) => v + 1);
   }
 
   useEffect(() => {
@@ -87,7 +88,13 @@ export default function DashboardClient({
     }
 
     loadStats();
-  }, [isSteamConnected, statsRefreshKey]);
+  }, [isSteamConnected]);
+
+  const trajectoryLine = !isSteamConnected
+    ? "Connect Steam in Profile to load playtime and this chart."
+    : statsLoading
+      ? "Analyzing Steam profile…"
+      : `${stats?.totalGames ?? 0} games · ${stats?.totalHours ?? 0}h lifetime · ${stats?.recentHours ?? 0}h in the last 2 weeks.`;
 
   return (
     <main className="mx-auto max-w-[1440px] px-8 py-12">
@@ -104,9 +111,20 @@ export default function DashboardClient({
               Steam gameplay metrics below are generated from your live owned-games profile and recent
               playtime activity.
             </p>
-            {userEmail ? (
-              <p className="mt-3 text-sm text-on-surface-variant/80">{userEmail}</p>
-            ) : null}
+            <p className="mt-3 text-sm text-on-surface-variant/80">
+              {userDisplayName ? <span className="font-semibold text-on-surface">{userDisplayName}</span> : null}
+              {userDisplayName && userEmail ? <span className="text-on-surface-variant"> · </span> : null}
+              {userEmail ? <span>{userEmail}</span> : null}
+              {(userDisplayName || userEmail) && (
+                <>
+                  {" "}
+                  ·{" "}
+                  <Link href="/dashboard/profile" className="text-primary underline-offset-2 hover:underline">
+                    Profile
+                  </Link>
+                </>
+              )}
+            </p>
           </div>
           <div className="flex gap-4">
             <div className="flex flex-col items-end rounded-lg bg-surface-container-low p-4">
@@ -128,89 +146,72 @@ export default function DashboardClient({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-12">
-          <div className="relative overflow-hidden rounded-xl bg-surface-container p-8 md:col-span-8">
-            <div className="pointer-events-none absolute inset-0 drift-gradient opacity-20" />
-            <div className="relative z-10">
-              <div className="mb-12 flex items-start justify-between">
-                <div>
-                  <h3 className="mb-1 text-xl font-bold">Playstyle Trajectory</h3>
-                  <p className="text-sm text-on-surface-variant">Last 90 days vs All-time baseline</p>
-                </div>
-                <div className="flex gap-2">
-                  <span className="font-label flex items-center gap-2 text-xs text-primary">
-                    <span className="h-2 w-2 rounded-full bg-primary" /> CORE
-                  </span>
-                  <span className="font-label flex items-center gap-2 text-xs text-tertiary">
-                    <span className="h-2 w-2 rounded-full bg-tertiary" /> RECENT
-                  </span>
-                </div>
+        <div className="relative overflow-hidden rounded-xl bg-surface-container p-8">
+          <div className="pointer-events-none absolute inset-0 drift-gradient opacity-20" />
+          <div className="relative z-10">
+            <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <h3 className="mb-1 text-xl font-bold">Playstyle Trajectory</h3>
+                <p className="text-sm text-on-surface-variant">Last 90 days vs All-time baseline</p>
               </div>
-              <div className="flex h-64 items-end justify-between gap-4">
-                {(stats?.trajectory ?? []).map((point) => (
-                  <div key={point.label} className="group/bar relative h-full w-full rounded-t-lg bg-surface-container-highest">
-                    <div
-                      className="absolute bottom-0 left-0 w-full rounded-t-lg bg-primary/40 transition-all duration-500 group-hover/bar:opacity-90"
-                      style={{ height: `${point.corePct}%` }}
-                    />
-                    <div
-                      className="absolute bottom-0 left-0 w-full rounded-t-lg bg-tertiary/40 transition-all duration-500 group-hover/bar:opacity-90"
-                      style={{ height: `${point.recentPct}%` }}
-                    />
-                  </div>
-                ))}
-              </div>
-              <div className="font-label mt-4 flex justify-between gap-2 text-[10px] uppercase tracking-widest text-outline">
-                {(stats?.trajectory ?? []).map((point) => (
-                  <span key={`${point.label}-label`} className="line-clamp-1 max-w-20 text-center">
-                    {point.label}
-                  </span>
-                ))}
+              <div className="flex flex-wrap gap-3">
+                <span className="font-label flex items-center gap-2 text-xs text-primary">
+                  <span className="h-2 w-2 rounded-full bg-primary" /> CORE
+                </span>
+                <span className="font-label flex items-center gap-2 text-xs text-tertiary">
+                  <span className="h-2 w-2 rounded-full bg-tertiary" /> RECENT
+                </span>
               </div>
             </div>
-          </div>
-
-          <div className="flex flex-col gap-6 md:col-span-4">
-            <div className="rounded-xl border-l-4 border-primary bg-surface-container-high p-6 shadow-lg">
-              <div className="mb-4 flex items-center gap-3">
-                <span className="material-symbols-outlined text-primary-fixed-dim">psychology</span>
-                <h4 className="font-label text-sm uppercase tracking-widest text-secondary-fixed-dim">
-                  AI Prediction
-                </h4>
-              </div>
-              <p className="text-sm leading-relaxed text-on-surface-variant">
-                {statsLoading
-                  ? "Analyzing Steam profile..."
-                  : `Loaded ${stats?.totalGames ?? 0} games with ${stats?.totalHours ?? 0}h lifetime playtime and ${stats?.recentHours ?? 0}h in the last 2 weeks.`}
-              </p>
-            </div>
-            <div
-              id="steam-connect"
-              className="flex flex-grow flex-col justify-center rounded-xl bg-surface-container p-6 text-center"
-            >
-              {!isSteamConnected ? (
-                <SteamConnectForm
-                  embedded
-                  onConnected={() => {
-                    setIsSteamConnected(true);
-                    refreshRecommendations();
-                    refreshStats();
-                  }}
-                />
-              ) : (
-                <div className="w-full text-left">
-                  <SteamConnectedCard
-                    onDisconnected={() => {
-                      setIsSteamConnected(false);
-                      refreshRecommendations();
-                      refreshStats();
-                    }}
+            <p className="mb-6 text-xs text-on-surface-variant sm:text-sm">{trajectoryLine}</p>
+            <div className="flex h-64 items-end justify-between gap-4">
+              {(stats?.trajectory ?? []).map((point) => (
+                <div
+                  key={point.label}
+                  className="group/bar relative h-full w-full rounded-t-lg bg-surface-container-highest"
+                >
+                  <div
+                    className="absolute bottom-0 left-0 w-full rounded-t-lg bg-primary/40 transition-all duration-500 group-hover/bar:opacity-90"
+                    style={{ height: `${point.corePct}%` }}
+                  />
+                  <div
+                    className="absolute bottom-0 left-0 w-full rounded-t-lg bg-tertiary/40 transition-all duration-500 group-hover/bar:opacity-90"
+                    style={{ height: `${point.recentPct}%` }}
                   />
                 </div>
-              )}
+              ))}
+            </div>
+            <div className="font-label mt-4 flex justify-between gap-2 text-[10px] uppercase tracking-widest text-outline">
+              {(stats?.trajectory ?? []).map((point) => (
+                <span key={`${point.label}-label`} className="line-clamp-1 max-w-20 text-center">
+                  {point.label}
+                </span>
+              ))}
             </div>
           </div>
         </div>
+      </section>
+
+      <section className="mb-12 rounded-xl bg-surface-container-low p-8">
+        <h3 className="text-2xl font-bold">Play together</h3>
+        <p className="mt-2 max-w-2xl text-sm text-on-surface-variant">
+          Compare your library with a friend side by side, see overlapping recommendations, and browse co-op ideas.
+        </p>
+        {isSteamConnected ? (
+          <Link
+            href="/dashboard/play-together"
+            className="mt-6 inline-block rounded-lg bg-primary px-6 py-3 font-label text-xs font-bold uppercase tracking-widest text-on-primary"
+          >
+            Open comparison
+          </Link>
+        ) : (
+          <p className="mt-4 text-sm text-on-surface-variant">
+            <Link href="/dashboard/profile#steam" className="text-primary underline-offset-2 hover:underline">
+              Connect Steam in Profile
+            </Link>{" "}
+            first.
+          </p>
+        )}
       </section>
 
       <div className="mb-20">
@@ -236,12 +237,10 @@ export default function DashboardClient({
             >
               <div className="flex items-center gap-6">
                 <div className="relative h-16 w-28 shrink-0 overflow-hidden rounded bg-surface-container-highest">
-                  <Image
-                    alt={session.name}
+                  <SteamSessionImage
                     className="object-cover grayscale transition-all group-hover:grayscale-0"
-                    fill
-                    src={session.imageUrl}
-                    sizes="112px"
+                    game={session}
+                    name={session.name}
                   />
                 </div>
                 <div>
