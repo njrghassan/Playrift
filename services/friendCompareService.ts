@@ -5,7 +5,7 @@ import {
   generateRecommendations,
   isAlreadyInLibrary
 } from "@/services/recommendationService";
-import { getGamesByGenres, type RawgGameSummary } from "@/services/rawgService";
+import { getGamesByGenresMultiPlatform, type RawgGameSummary } from "@/services/rawgService";
 import { behavioralInsightText } from "@/lib/behavioralInsight";
 
 /** Caps RAWG title lookups so compare finishes inside server timeouts (full library × 2 was hundreds of requests). */
@@ -79,13 +79,18 @@ export async function compareFriendProfilesAndCoop(
   let coopPool: RawgGameSummary[] = [];
   if (mergedGenreSlugs.length > 0) {
     try {
-      coopPool = await getGamesByGenres(mergedGenreSlugs, { tags: "online-co-op" });
+      coopPool = await getGamesByGenresMultiPlatform(mergedGenreSlugs, {
+        tags: "online-co-op",
+        pageSizePerFetch: 36
+      });
     } catch {
       coopPool = [];
     }
-    if (coopPool.length < 8) {
+    if (coopPool.length < 12) {
       try {
-        const more = await getGamesByGenres(mergedGenreSlugs);
+        const more = await getGamesByGenresMultiPlatform(mergedGenreSlugs, {
+          pageSizePerFetch: 36
+        });
         const seen = new Set(coopPool.map((g) => g.id));
         for (const g of more) {
           if (!seen.has(g.id)) {

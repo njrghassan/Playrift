@@ -11,6 +11,7 @@ import {
   type RawgRatingBucket
 } from "@/lib/rawgRatings";
 import { RecommendedGame } from "@/lib/types";
+import { GamePlatformChips } from "@/components/GamePlatformChips";
 import { RawgReviewBlock } from "@/components/RawgReviewBlock";
 
 const CURRENCY_PREF_KEY = "playrift_currency_pref";
@@ -297,6 +298,12 @@ export function RecommendationsPanel({ refreshKey }: { refreshKey: number }) {
 
       {!showLoading && !error && data && (
         <>
+          <p className="mb-6 text-xs leading-relaxed text-on-surface-variant">
+            Catalog spans <span className="font-semibold text-on-surface">PC, consoles, and handhelds</span>{" "}
+            via RAWG (not Steam-only). The deal row below is an{" "}
+            <span className="font-semibold text-on-surface">indicative PC store price</span> (often Steam)
+            and may not apply to exclusives or console-only titles.
+          </p>
           <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div className="relative w-full lg:max-w-md">
               <span className="pointer-events-none absolute left-3 top-1/2 flex size-9 -translate-y-1/2 items-center justify-center text-on-surface-variant">
@@ -444,6 +451,7 @@ export function RecommendationsPanel({ refreshKey }: { refreshKey: number }) {
                       </div>
                       <div className="flex flex-grow flex-col p-6">
                         <h4 className="mb-2 text-xl font-bold">{game.name}</h4>
+                        <GamePlatformChips platforms={game.platforms} className="mb-3 flex flex-wrap gap-1" />
                         <p className="mb-6 flex-grow text-sm leading-relaxed text-on-surface-variant">
                           {game.reason}
                         </p>
@@ -451,7 +459,7 @@ export function RecommendationsPanel({ refreshKey }: { refreshKey: number }) {
                           <div className="flex items-baseline justify-between gap-3">
                             <div>
                               <div className="font-label text-[10px] uppercase tracking-wider text-outline">
-                                From (deals) · {data.currency}
+                                PC deal est. · {data.currency}
                               </div>
                               <div className="text-xl font-black tabular-nums text-tertiary">
                                 {formatMoney(game.price, data.currency)}

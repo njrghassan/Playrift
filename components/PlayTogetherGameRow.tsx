@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { GamePlatformChips } from "@/components/GamePlatformChips";
 import type { RecommendedGame } from "@/lib/types";
 
 export function PlayTogetherGameRow({ game }: { game: RecommendedGame }) {
@@ -21,6 +22,7 @@ export function PlayTogetherGameRow({ game }: { game: RecommendedGame }) {
       </div>
       <div className="min-w-0 flex-1 py-1">
         <h4 className="font-bold text-on-surface group-hover:text-primary">{game.name}</h4>
+        <GamePlatformChips platforms={game.platforms} className="mt-1 flex flex-wrap gap-1" />
         <p className="mt-1 line-clamp-2 text-xs text-on-surface-variant">{game.reason}</p>
       </div>
     </Link>

@@ -10,6 +10,8 @@ export type SteamOwnedGame = {
 
 export type GenreCount = Record<string, number>;
 
+export type GamePlatformRef = { id: number; name: string; slug?: string };
+
 export type RecommendedGame = {
   id: number;
   slug: string;
@@ -17,6 +19,8 @@ export type RecommendedGame = {
   background_image: string | null;
   /** RAWG release date YYYY-MM-DD when known. */
   released?: string | null;
+  /** Store / device families from RAWG (PC, consoles, etc.). */
+  platforms?: GamePlatformRef[];
   genres: { id: number; name: string; slug: string }[];
   score: number;
   reason: string;

@@ -10,6 +10,62 @@ type Props = {
   variant: "compact" | "full";
 };
 
+const BUCKET_ORDER = ["exceptional", "recommended", "meh", "skip"] as const;
+
+function sortRatingBuckets(ratings: RawgRatingBucket[]): RawgRatingBucket[] {
+  return [...ratings].sort((a, b) => {
+    const ta = a.title?.toLowerCase().trim() ?? "";
+    const tb = b.title?.toLowerCase().trim() ?? "";
+    const ia = BUCKET_ORDER.findIndex((k) => ta.includes(k));
+    const ib = BUCKET_ORDER.findIndex((k) => tb.includes(k));
+    const na = ia === -1 ? 999 : ia;
+    const nb = ib === -1 ? 999 : ib;
+    if (na !== nb) return na - nb;
+    return a.title.localeCompare(b.title);
+  });
+}
+
+function segmentColorClass(title: string): string {
+  const t = title.toLowerCase();
+  if (t.includes("exceptional")) return "bg-emerald-500";
+  if (t.includes("recommended")) return "bg-violet-400";
+  if (t.includes("meh")) return "bg-amber-500";
+  if (t.includes("skip")) return "bg-rose-600";
+  return "bg-slate-500";
+}
+
+function SegmentedReviewBar({
+  segments,
+  compact
+}: {
+  segments: RawgRatingBucket[];
+  compact?: boolean;
+}) {
+  const visible = segments.filter((r) => (r.percent ?? 0) > 0);
+  if (visible.length === 0) return null;
+
+  const h = compact ? "h-2" : "h-4";
+  const columns = visible.map((r) => `${Math.max(r.percent, 0.01)}fr`).join(" ");
+  const label = visible.map((r) => `${r.title} ${r.percent}%`).join(", ");
+
+  return (
+    <div
+      className={`grid w-full overflow-hidden rounded-full bg-surface-container-highest ${h}`}
+      style={{ gridTemplateColumns: columns }}
+      role="img"
+      aria-label={`Review mix: ${label}`}
+    >
+      {visible.map((r) => (
+        <div
+          key={r.id}
+          className={`min-w-0 ${segmentColorClass(r.title)}`}
+          title={`${r.title}: ${r.percent}%`}
+        />
+      ))}
+    </div>
+  );
+}
+
 export function RawgReviewBlock({
   ratings,
   rating,
@@ -26,6 +82,9 @@ export function RawgReviewBlock({
   const fillPctRaw = positive ?? segFallback ?? scoreToStarPercent(rating, rating_top);
   const fillPct = fillPctRaw != null ? Math.min(100, Math.max(0, fillPctRaw)) : null;
 
+  const segmentList = ratings?.length ? sortRatingBuckets(ratings) : [];
+  const hasSegments = segmentList.some((r) => (r.percent ?? 0) > 0);
+
   if (variant === "compact") {
     return (
       <div className="min-w-0 flex-1">
@@ -35,19 +94,25 @@ export function RawgReviewBlock({
             <div className="mt-1 text-sm font-bold tabular-nums text-on-surface">
               {Math.round(fillPct * 10) / 10}% positive
             </div>
-            <div
-              className="mt-2 h-2 w-full overflow-hidden rounded-full bg-surface-container-highest"
-              role="progressbar"
-              aria-valuenow={Math.round(fillPct)}
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-label="Positive review share"
-            >
+            {hasSegments ? (
+              <div className="mt-2">
+                <SegmentedReviewBar segments={segmentList} compact />
+              </div>
+            ) : (
               <div
-                className="h-full rounded-full bg-primary transition-[width] duration-500 ease-out"
-                style={{ width: `${fillPct}%` }}
-              />
-            </div>
+                className="mt-2 h-2 w-full overflow-hidden rounded-full bg-surface-container-highest"
+                role="progressbar"
+                aria-valuenow={Math.round(fillPct)}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-label="Positive review share"
+              >
+                <div
+                  className="h-full rounded-full bg-primary transition-[width] duration-500 ease-out"
+                  style={{ width: `${fillPct}%` }}
+                />
+              </div>
+            )}
           </>
         ) : (
           <div className="mt-1 text-sm text-on-surface-variant">—</div>
@@ -85,13 +150,18 @@ export function RawgReviewBlock({
         </p>
       ) : null}
 
-      {fillPct != null ? (
+      {hasSegments ? (
+        <div className="mt-4">
+          <SegmentedReviewBar segments={segmentList} />
+        </div>
+      ) : fillPct != null ? (
         <div
           className="mt-4 h-4 w-full overflow-hidden rounded-full bg-surface-container-highest"
           role="progressbar"
           aria-valuenow={Math.round(fillPct)}
           aria-valuemin={0}
           aria-valuemax={100}
+          aria-label="Positive review share"
         >
           <div
             className="h-full rounded-full bg-primary transition-[width] duration-500 ease-out"
@@ -102,9 +172,15 @@ export function RawgReviewBlock({
 
       {ratings && ratings.length > 0 ? (
         <ul className="mt-4 grid gap-2 text-sm sm:grid-cols-2">
-          {ratings.map((r) => (
-            <li key={r.id} className="flex justify-between gap-2 text-on-surface-variant">
-              <span className="capitalize">{r.title}</span>
+          {sortRatingBuckets(ratings).map((r) => (
+            <li key={r.id} className="flex items-center justify-between gap-2 text-on-surface-variant">
+              <span className="flex min-w-0 items-center gap-2">
+                <span
+                  className={`size-2.5 shrink-0 rounded-sm ${segmentColorClass(r.title)}`}
+                  aria-hidden
+                />
+                <span className="capitalize">{r.title}</span>
+              </span>
               <span className="tabular-nums text-on-surface">{r.percent}%</span>
             </li>
           ))}

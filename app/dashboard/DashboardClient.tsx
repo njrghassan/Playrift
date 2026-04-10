@@ -290,7 +290,8 @@ export default function DashboardClient({
         <div className="mb-8">
           <h3 className="text-3xl font-bold tracking-tight">Rift Suggestions</h3>
           <p className="mt-1 text-sm text-on-surface-variant">
-            Cross-analyzed with your behavioral drift trends. Search, filter, and sort below.
+            Cross-analyzed with your behavioral drift trends across a multi-platform catalog. Search, filter,
+            and sort below.
           </p>
         </div>
         <RecommendationsPanel refreshKey={recommendationsRefreshKey} />

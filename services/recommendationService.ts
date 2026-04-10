@@ -1,6 +1,10 @@
 import { resolvePositiveReviewPercent } from "@/lib/rawgRatings";
 import { GenreCount, RecommendedGame, SteamOwnedGame } from "@/lib/types";
-import { getFirstRawgMatchByName, getGamesByGenres, RawgGameSummary } from "@/services/rawgService";
+import {
+  getFirstRawgMatchByName,
+  getGamesByGenresMultiPlatform,
+  RawgGameSummary
+} from "@/services/rawgService";
 
 type ProfileResult = {
   topLongTermGames: SteamOwnedGame[];
@@ -171,6 +175,26 @@ function popularityOf(game: { added?: number; ratings_count?: number }) {
   return game.added ?? game.ratings_count ?? 0;
 }
 
+/** Slight boost so console / multi-platform picks surface among similar popularity. */
+function platformSpreadBoost(
+  platforms: { name: string }[] | undefined
+): number {
+  if (!platforms?.length) return 0;
+  let nonPcLike = 0;
+  for (const p of platforms) {
+    const n = p.name.toLowerCase();
+    if (
+      n.includes("playstation") ||
+      n.includes("xbox") ||
+      n.includes("nintendo") ||
+      n.includes("switch")
+    ) {
+      nonPcLike += 1;
+    }
+  }
+  return Math.min(0.22, nonPcLike * 0.07);
+}
+
 export async function generateRecommendations(
   ownedGames: SteamOwnedGame[],
   blacklistNames: string[],
@@ -201,8 +225,9 @@ export async function generateRecommendations(
   const recentTopGenres = topGenres(recentCount);
   const candidateGenres = Array.from(new Set([...recentTopGenres, ...longTopGenres]));
 
-  const candidates = await getGamesByGenres(candidateGenres, {
-    ordering: opts?.genreGamesOrdering
+  const candidates = await getGamesByGenresMultiPlatform(candidateGenres, {
+    ordering: opts?.genreGamesOrdering,
+    pageSizePerFetch: 42
   });
   const blacklist = new Set(blacklistNames.map((n) => n.toLowerCase()));
 
@@ -228,11 +253,13 @@ export async function generateRecommendations(
       };
     })
     .sort((a, b) => {
-      const popDiff = popularityOf(b) - popularityOf(a);
+      const popB = popularityOf(b) + platformSpreadBoost(b.platforms) * 1_000_000;
+      const popA = popularityOf(a) + platformSpreadBoost(a.platforms) * 1_000_000;
+      const popDiff = popB - popA;
       if (popDiff !== 0) return popDiff;
       return b.score - a.score;
     })
-    .slice(0, opts?.maxResults ?? 20);
+    .slice(0, opts?.maxResults ?? 28);
 
   return { recommendations, recentTopGenres, longTopGenres };
 }

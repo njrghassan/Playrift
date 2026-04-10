@@ -4,6 +4,8 @@ const BASE = "https://api.rawg.io/api";
 
 type RawgGenre = { id: number; name: string; slug: string };
 
+export type RawgPlatformRef = { id: number; name: string; slug?: string };
+
 export type RawgGameSummary = {
   id: number;
   slug: string;
@@ -11,6 +13,8 @@ export type RawgGameSummary = {
   background_image: string | null;
   /** RAWG release date (YYYY-MM-DD) when present. */
   released: string | null;
+  /** Store / device families (PC, PlayStation, Xbox, Switch, …) when RAWG lists them. */
+  platforms?: RawgPlatformRef[];
   genres: RawgGenre[];
   added?: number;
   ratings_count?: number;
@@ -27,6 +31,26 @@ function getApiKey() {
   return key;
 }
 
+function mapPlatforms(r: Record<string, unknown>): RawgPlatformRef[] {
+  const pl = r.platforms;
+  if (!Array.isArray(pl)) return [];
+  const out: RawgPlatformRef[] = [];
+  const seen = new Set<number>();
+  for (const row of pl) {
+    const o = row as { platform?: { id?: number; name?: string; slug?: string } };
+    const id = o.platform?.id;
+    const name = o.platform?.name;
+    if (typeof id !== "number" || typeof name !== "string" || !name.trim() || seen.has(id)) continue;
+    seen.add(id);
+    out.push({
+      id,
+      name: name.trim(),
+      slug: typeof o.platform?.slug === "string" ? o.platform.slug : undefined
+    });
+  }
+  return out;
+}
+
 function mapSummary(r: Record<string, unknown> | undefined): RawgGameSummary | null {
   if (!r || typeof r.id !== "number" || typeof r.slug !== "string" || typeof r.name !== "string") return null;
   const genres = (Array.isArray(r.genres) ? r.genres : []) as RawgGenre[];
@@ -34,8 +58,9 @@ function mapSummary(r: Record<string, unknown> | undefined): RawgGameSummary | n
   const releasedRaw = r.released;
   const released =
     typeof releasedRaw === "string" && releasedRaw.trim() ? releasedRaw.trim() : null;
+  const platforms = mapPlatforms(r);
 
-  return {
+  const summary: RawgGameSummary = {
     id: r.id,
     slug: r.slug,
     name: r.name,
@@ -48,6 +73,8 @@ function mapSummary(r: Record<string, unknown> | undefined): RawgGameSummary | n
     rating_top: r.rating_top as number | undefined,
     ratings
   };
+  if (platforms.length > 0) summary.platforms = platforms;
+  return summary;
 }
 
 export async function getFirstRawgMatchByName(gameName: string): Promise<RawgGameSummary | null> {
@@ -70,7 +97,7 @@ export async function getGameGenresByName(gameName: string): Promise<RawgGenre[]
 
 export async function getGamesByGenres(
   genreSlugs: string[],
-  options?: { tags?: string; ordering?: string; pageSize?: number }
+  options?: { tags?: string; ordering?: string; pageSize?: number; parentPlatforms?: string }
 ): Promise<RawgGame[]> {
   if (genreSlugs.length === 0) return [];
 
@@ -80,6 +107,9 @@ export async function getGamesByGenres(
   url.searchParams.set("ordering", options?.ordering ?? "-added");
   url.searchParams.set("page_size", String(options?.pageSize ?? 60));
   if (options?.tags) url.searchParams.set("tags", options.tags);
+  if (options?.parentPlatforms?.trim()) {
+    url.searchParams.set("parent_platforms", options.parentPlatforms.trim());
+  }
 
   const response = await fetch(url, { next: { revalidate: 60 * 60 } });
   if (!response.ok) throw new Error("RAWG fetch failed.");
@@ -87,6 +117,62 @@ export async function getGamesByGenres(
   const data = await response.json();
   const results = (data?.results ?? []) as Record<string, unknown>[];
   return results.map((row) => mapSummary(row)).filter(Boolean) as RawgGame[];
+}
+
+type MultiPlatformGenreOpts = {
+  tags?: string;
+  ordering?: string;
+  /** Per upstream request; merged and deduped by RAWG game id. */
+  pageSizePerFetch?: number;
+};
+
+/**
+ * Merges genre hits across an unfiltered catalog pass plus major platform families
+ * (PlayStation, Xbox, Nintendo, macOS, Linux) so recommendations are not PC/Steam-skewed.
+ */
+export async function getGamesByGenresMultiPlatform(
+  genreSlugs: string[],
+  options?: MultiPlatformGenreOpts
+): Promise<RawgGame[]> {
+  if (genreSlugs.length === 0) return [];
+
+  const pageSize = options?.pageSizePerFetch ?? 40;
+  const base = {
+    ordering: options?.ordering,
+    pageSize,
+    tags: options?.tags
+  };
+
+  const merged = new Map<number, RawgGame>();
+
+  const ingest = (batch: RawgGame[]) => {
+    for (const g of batch) {
+      if (!merged.has(g.id)) merged.set(g.id, g);
+    }
+  };
+
+  const passes: (string | undefined)[] = [
+    undefined,
+    "2",
+    "3",
+    "8",
+    "6",
+    "7"
+  ];
+
+  for (const parentPlatforms of passes) {
+    try {
+      const batch = await getGamesByGenres(genreSlugs, {
+        ...base,
+        parentPlatforms
+      });
+      ingest(batch);
+    } catch {
+      /* ignore single pass failure */
+    }
+  }
+
+  return [...merged.values()];
 }
 
 export async function searchGamesOnRawg(query: string, limit = 20): Promise<RawgGameSummary[]> {

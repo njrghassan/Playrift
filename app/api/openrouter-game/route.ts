@@ -397,6 +397,7 @@ export async function POST(request: Request) {
       name: matched.name,
       background_image: matched.background_image,
       genres: matched.genres.map((g) => g.name),
+      platforms: matched.platforms ?? [],
       algorithm_reason: matched.reason,
       released: releasedIso,
       released_display: formatReleasedForUi(releasedIso),

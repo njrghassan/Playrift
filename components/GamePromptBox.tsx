@@ -3,6 +3,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { GamePlatformChips } from "@/components/GamePlatformChips";
+import type { GamePlatformRef } from "@/lib/types";
 
 type BlacklistItem = { id: number; game_name: string };
 
@@ -17,6 +19,7 @@ type DisplayPayload = {
   name: string;
   background_image: string | null;
   genres: string[];
+  platforms?: GamePlatformRef[];
   algorithm_reason: string;
   brief_detail: string;
   released?: string | null;
@@ -123,7 +126,8 @@ export function GamePromptBox({
           </h3>
           <p className="mt-1 text-sm text-on-surface-variant">
             Blends your <span className="font-semibold text-on-surface">Rift algorithm</span> with what
-            you feel like playing right now.
+            you feel like playing right now. Suggestions pull from a{" "}
+            <span className="font-semibold text-on-surface">cross-platform</span> catalog (not PC-only).
           </p>
         </div>
       </div>
@@ -225,6 +229,10 @@ export function GamePromptBox({
                     ))}
                   </div>
                 ) : null}
+                <GamePlatformChips
+                  platforms={display.platforms}
+                  className="mt-2 flex flex-wrap gap-1"
+                />
               </div>
 
               <p className="text-sm leading-relaxed text-on-surface-variant">{display.brief_detail}</p>

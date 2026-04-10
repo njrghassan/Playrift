@@ -214,6 +214,7 @@ export default function PlayTogetherClient({
                   <h2 className="mb-4 text-2xl font-bold">Co-op together</h2>
                   <p className="mb-4 text-sm text-on-surface-variant">
                     Neither of you owns these; biased toward online co-op signals and your combined taste.
+                    Picks include PC and console releases where RAWG lists them.
                   </p>
                   <div className="grid gap-3 md:grid-cols-2">
                     {data.coopRecommendations.map((g) => (
