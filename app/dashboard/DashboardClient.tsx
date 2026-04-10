@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { BlacklistManager } from "@/components/BlacklistManager";
@@ -42,11 +43,13 @@ function formatRelativeTime(unixTs: number | null): string {
 export default function DashboardClient({
   userEmail,
   userDisplayName,
+  userAvatarUrl,
   steamConnected,
   blacklist
 }: {
   userEmail?: string;
   userDisplayName?: string;
+  userAvatarUrl?: string;
   steamConnected: boolean;
   blacklist: BlacklistItem[];
 }) {
@@ -111,10 +114,21 @@ export default function DashboardClient({
               Steam gameplay metrics below are generated from your live owned-games profile and recent
               playtime activity.
             </p>
-            <p className="mt-3 text-sm text-on-surface-variant/80">
-              {userDisplayName ? <span className="font-semibold text-on-surface">{userDisplayName}</span> : null}
-              {userDisplayName && userEmail ? <span className="text-on-surface-variant"> · </span> : null}
-              {userEmail ? <span>{userEmail}</span> : null}
+            <p className="mt-3 flex flex-wrap items-center gap-3 text-sm text-on-surface-variant/80">
+              {userAvatarUrl ? (
+                <span className="relative size-10 shrink-0 overflow-hidden rounded-full ring-2 ring-outline-variant/30">
+                  <Image
+                    src={userAvatarUrl}
+                    alt=""
+                    fill
+                    className="object-cover"
+                    sizes="40px"
+                    unoptimized
+                  />
+                </span>
+              ) : null}
+              <span>
+              {userDisplayName ? <span className="font-semibold text-on-surface">{userDisplayName}</span> : null} 
               {(userDisplayName || userEmail) && (
                 <>
                   {" "}
@@ -124,6 +138,7 @@ export default function DashboardClient({
                   </Link>
                 </>
               )}
+              </span>
             </p>
           </div>
           <div className="flex gap-4">

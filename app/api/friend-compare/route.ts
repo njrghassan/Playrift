@@ -6,6 +6,8 @@ import { compareFriendProfilesAndCoop } from "@/services/friendCompareService";
 import { fetchOwnedPlayableGames, resolveVanityToSteam64 } from "@/services/steamService";
 import { NextResponse } from "next/server";
 
+export const maxDuration = 120;
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -58,8 +60,15 @@ export async function POST(request: Request) {
 
     const friendMask = `${friendSteamId.slice(0, 4)}…${friendSteamId.slice(-4)}`;
 
+    let friendLibraryIssue: string | null = null;
+    if (friendGames.length === 0) {
+      friendLibraryIssue =
+        "We loaded 0 games for that profile. This usually means Steam privacy: they need Profile → Edit Profile → Privacy Settings → Game details set to Public (not Friends only). You don’t need to be Steam friends—only their library must be visible to everyone.";
+    }
+
     const payload: FriendCompareResponse = {
       friendSteamMasked: friendMask,
+      friendLibraryIssue,
       userInsight: compared.userInsight,
       friendInsight: compared.friendInsight,
       userLibrarySize: userGames.length,

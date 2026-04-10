@@ -8,6 +8,10 @@ import {
 import { getGamesByGenres, type RawgGameSummary } from "@/services/rawgService";
 import { behavioralInsightText } from "@/lib/behavioralInsight";
 
+/** Caps RAWG title lookups so compare finishes inside server timeouts (full library × 2 was hundreds of requests). */
+const COMPARE_RAWG_NAMES_PER_PROFILE = 100;
+const COMPARE_RAWG_NAMES_COMBINED = 160;
+
 function popularityOf(game: { added?: number; ratings_count?: number }) {
   return game.added ?? game.ratings_count ?? 0;
 }
@@ -43,8 +47,9 @@ export async function compareFriendProfilesAndCoop(
   youOnlyCount: number;
   friendOnlyCount: number;
 }> {
-  const userOut = await generateRecommendations(userGames, userBlacklist);
-  const friendOut = await generateRecommendations(friendGames, []);
+  const rawgOpts = { maxResolvedSteamNames: COMPARE_RAWG_NAMES_PER_PROFILE };
+  const userOut = await generateRecommendations(userGames, userBlacklist, rawgOpts);
+  const friendOut = await generateRecommendations(friendGames, [], rawgOpts);
 
   const userInsight = behavioralInsightText(userOut.recentTopGenres, userOut.longTopGenres, "you");
   const friendInsight = behavioralInsightText(friendOut.recentTopGenres, friendOut.longTopGenres, "they");
@@ -66,7 +71,9 @@ export async function compareFriendProfilesAndCoop(
   ].slice(0, 8);
 
   const combinedLibrary = [...userGames, ...friendGames];
-  const ctx = await buildLibraryOwnershipContext(combinedLibrary);
+  const ctx = await buildLibraryOwnershipContext(combinedLibrary, {
+    maxResolvedNames: COMPARE_RAWG_NAMES_COMBINED
+  });
   const blacklistLower = new Set(userBlacklist.map((n) => n.toLowerCase()));
 
   let coopPool: RawgGameSummary[] = [];

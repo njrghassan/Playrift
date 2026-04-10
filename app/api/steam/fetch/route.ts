@@ -1,3 +1,4 @@
+import { displayNameFromUserMetadataOrEmail } from "@/lib/displayName";
 import { parseSteamProfileInput } from "@/lib/steam";
 import { createClient } from "@/lib/supabase/server";
 import { fetchOwnedGames, resolveVanityToSteam64 } from "@/services/steamService";
@@ -23,10 +24,14 @@ export async function POST(request: Request) {
 
     await fetchOwnedGames(steamId);
 
+    const meta = user.user_metadata as { display_name?: string } | undefined;
+    const displayName = displayNameFromUserMetadataOrEmail(meta, user.email);
+
     const { error } = await supabase.from("users").upsert(
       {
         id: user.id,
-        email: user.email,
+        email: user.email ?? "",
+        display_name: displayName,
         steam_id: steamId
       },
       { onConflict: "id" }

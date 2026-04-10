@@ -56,10 +56,34 @@ async function mapInBatches<T, R>(items: T[], batchSize: number, fn: (item: T) =
   return out;
 }
 
+/** Prefer recent + top playtime titles so we cap RAWG calls without losing taste signal. */
+function pickSteamNamesForRawgLookup(ownedGames: SteamOwnedGame[], maxNames: number): string[] {
+  if (maxNames <= 0 || ownedGames.length === 0) return [];
+  const withRecent = new Set<string>();
+  for (const g of ownedGames) {
+    if ((g.playtime_2weeks ?? 0) > 0) withRecent.add(g.name);
+  }
+  const byPlaytime = [...ownedGames].sort((a, b) => b.playtime_forever - a.playtime_forever);
+  const ordered = new Set<string>();
+  for (const n of withRecent) ordered.add(n);
+  for (const g of byPlaytime) {
+    ordered.add(g.name);
+    if (ordered.size >= maxNames) break;
+  }
+  return [...ordered];
+}
+
 export async function buildOwnedLibraryRawgLookup(
-  ownedGames: SteamOwnedGame[]
+  ownedGames: SteamOwnedGame[],
+  options?: { maxResolvedNames?: number }
 ): Promise<Map<string, RawgGameSummary | null>> {
-  const uniqueNames = [...new Set(ownedGames.map((g) => g.name))];
+  let uniqueNames = [...new Set(ownedGames.map((g) => g.name))];
+  if (
+    options?.maxResolvedNames &&
+    uniqueNames.length > options.maxResolvedNames
+  ) {
+    uniqueNames = pickSteamNamesForRawgLookup(ownedGames, options.maxResolvedNames);
+  }
   const pairs = await mapInBatches(uniqueNames, 10, async (steamName) => {
     const match = await getFirstRawgMatchByName(steamName);
     return { steamName, match } as const;
@@ -93,8 +117,11 @@ export function buildOwnershipSets(
   return { ownedRawgIds, ownedRawgSlugs, ownedNormalizedTitles };
 }
 
-export async function buildLibraryOwnershipContext(ownedGames: SteamOwnedGame[]) {
-  const rawgBySteamName = await buildOwnedLibraryRawgLookup(ownedGames);
+export async function buildLibraryOwnershipContext(
+  ownedGames: SteamOwnedGame[],
+  options?: { maxResolvedNames?: number }
+) {
+  const rawgBySteamName = await buildOwnedLibraryRawgLookup(ownedGames, options);
   const sets = buildOwnershipSets(ownedGames, rawgBySteamName);
   return { rawgBySteamName, ...sets };
 }
@@ -146,14 +173,17 @@ function popularityOf(game: { added?: number; ratings_count?: number }) {
 
 export async function generateRecommendations(
   ownedGames: SteamOwnedGame[],
-  blacklistNames: string[]
+  blacklistNames: string[],
+  opts?: { maxResolvedSteamNames?: number }
 ): Promise<{
   recommendations: RecommendedGame[];
   recentTopGenres: string[];
   longTopGenres: string[];
 }> {
   const { topLongTermGames, recentGames } = splitProfiles(ownedGames);
-  const rawgBySteamName = await buildOwnedLibraryRawgLookup(ownedGames);
+  const rawgBySteamName = await buildOwnedLibraryRawgLookup(ownedGames, {
+    maxResolvedNames: opts?.maxResolvedSteamNames
+  });
   const { ownedRawgIds, ownedRawgSlugs, ownedNormalizedTitles } = buildOwnershipSets(
     ownedGames,
     rawgBySteamName

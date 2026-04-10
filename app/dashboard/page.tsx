@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { displayNameFromUserMetadataOrEmail } from "@/lib/displayName";
 import { redirect } from "next/navigation";
 import { DashboardNav } from "@/components/DashboardNav";
 import { DashboardFooter } from "@/components/DashboardFooter";
@@ -7,6 +8,7 @@ import DashboardClient from "./DashboardClient";
 export default async function DashboardPage() {
   let user: { id: string; email?: string } | null = null;
   let userDisplayName: string | undefined;
+  let userAvatarUrl: string | undefined;
   let profile: { steam_id?: string | null } | null = null;
   let blacklist: { id: number; game_name: string }[] = [];
 
@@ -19,18 +21,41 @@ export default async function DashboardPage() {
     if (!currentUser) redirect("/login");
 
     user = currentUser;
-    const meta = currentUser.user_metadata as { display_name?: string } | undefined;
-    if (typeof meta?.display_name === "string" && meta.display_name.trim()) {
-      userDisplayName = meta.display_name.trim();
-    }
+    const meta = currentUser.user_metadata as {
+      display_name?: string;
+      avatar_url?: string;
+    };
+    const displayFallback = displayNameFromUserMetadataOrEmail(meta, currentUser.email);
+
+    const { data: existingRow } = await supabase
+      .from("users")
+      .select("steam_id, display_name")
+      .eq("id", currentUser.id)
+      .maybeSingle();
+
+    const resolvedDisplayName = existingRow?.display_name?.trim() || displayFallback;
+    await supabase.from("users").upsert(
+      {
+        id: currentUser.id,
+        email: currentUser.email ?? "",
+        display_name: resolvedDisplayName,
+        steam_id: existingRow?.steam_id ?? null
+      },
+      { onConflict: "id" }
+    );
 
     const { data: profileData } = await supabase
       .from("users")
-      .select("steam_id")
+      .select("steam_id, display_name")
       .eq("id", currentUser.id)
       .single();
 
     profile = profileData;
+    userDisplayName = profileData?.display_name?.trim() || resolvedDisplayName;
+
+    if (typeof meta?.avatar_url === "string" && meta.avatar_url.startsWith("http")) {
+      userAvatarUrl = meta.avatar_url;
+    }
 
     const { data: blacklistData } = await supabase
       .from("blacklist")
@@ -68,6 +93,7 @@ export default async function DashboardPage() {
       <DashboardClient
         userEmail={user?.email}
         userDisplayName={userDisplayName}
+        userAvatarUrl={userAvatarUrl}
         steamConnected={Boolean(profile?.steam_id)}
         blacklist={blacklist}
       />

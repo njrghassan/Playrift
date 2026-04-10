@@ -41,13 +41,25 @@ export async function fetchOwnedGames(steamId: string): Promise<SteamOwnedGame[]
   if (!response.ok) throw new Error("Steam API request failed.");
 
   const payload = await response.json();
-  const games = payload?.response?.games as SteamOwnedGame[] | undefined;
+  const res = payload?.response as
+    | { games?: SteamOwnedGame[]; game_count?: number }
+    | undefined;
 
-  if (!games) {
+  if (!res) {
     throw new Error("Unable to fetch Steam games. Profile might be private.");
   }
 
-  return games;
+  if (Array.isArray(res.games)) {
+    return res.games;
+  }
+
+  if (res.game_count === 0) {
+    return [];
+  }
+
+  throw new Error(
+    "Unable to fetch Steam games. Set Steam → Profile → Privacy → Game details to Public so anyone can load the library."
+  );
 }
 
 /** Owned games with non-game / utility Steam listings removed (for sessions + recommender). */

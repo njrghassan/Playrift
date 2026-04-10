@@ -14,19 +14,30 @@ export default function PlayTogetherClient({ steamConnected }: { steamConnected:
     e.preventDefault();
     setLoading(true);
     setError(null);
+    const controller = new AbortController();
+    const timeoutMs = 110_000;
+    const t = window.setTimeout(() => controller.abort(), timeoutMs);
     try {
       const res = await fetch("/api/friend-compare", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ friendSteamInput: friendInput })
+        body: JSON.stringify({ friendSteamInput: friendInput }),
+        signal: controller.signal
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error ?? "Compare failed.");
       setData(json);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Compare failed.");
+      if (err instanceof Error && err.name === "AbortError") {
+        setError(
+          `Compare took longer than ${timeoutMs / 1000}s and was cancelled. If it keeps happening, try again in a minute (RAWG rate limits) or a profile with a smaller public library.`
+        );
+      } else {
+        setError(err instanceof Error ? err.message : "Compare failed.");
+      }
       setData(null);
     } finally {
+      window.clearTimeout(t);
       setLoading(false);
     }
   }
@@ -37,8 +48,10 @@ export default function PlayTogetherClient({ steamConnected }: { steamConnected:
         <p className="font-label text-sm uppercase tracking-[0.2em] text-tertiary">Social</p>
         <h1 className="mt-2 text-4xl font-black tracking-tight">Play together</h1>
         <p className="mt-3 max-w-2xl text-on-surface-variant">
-          1:1 comparison with a friend&apos;s public Steam library. Shared picks, taste overlap, and co-op ideas
-          you can extend later with invites and parties.
+          Compare with any Steam profile you have a link or ID for—not only people on your friends list. Both
+          sides need Steam privacy → Game details set to{" "}
+          <span className="font-semibold text-on-surface">Public</span>; Friends-only hides libraries from this
+          app, which often feels like “only friends work.”
         </p>
       </header>
 
@@ -54,7 +67,7 @@ export default function PlayTogetherClient({ steamConnected }: { steamConnected:
           <form onSubmit={compare} className="mb-12 flex flex-col gap-4 sm:flex-row sm:items-end">
             <label className="flex-1">
               <span className="font-label text-xs uppercase tracking-wider text-secondary-fixed-dim">
-                Friend Steam URL or ID
+                Their Steam URL or ID
               </span>
               <input
                 value={friendInput}
@@ -76,6 +89,14 @@ export default function PlayTogetherClient({ steamConnected }: { steamConnected:
 
           {data ? (
             <div className="space-y-12">
+              {data.friendLibraryIssue ? (
+                <div
+                  className="rounded-xl border border-tertiary/40 bg-surface-container-high px-4 py-3 text-sm text-on-surface-variant"
+                  role="status"
+                >
+                  {data.friendLibraryIssue}
+                </div>
+              ) : null}
               <div className="grid gap-8 lg:grid-cols-2">
                 <section className="rounded-xl bg-surface-container-low p-6">
                   <h2 className="font-label text-xs uppercase tracking-widest text-secondary-fixed-dim">You</h2>

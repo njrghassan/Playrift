@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { displayNameFromUserMetadataOrEmail } from "@/lib/displayName";
 import { redirect } from "next/navigation";
 import { DashboardNav } from "@/components/DashboardNav";
 import { DashboardFooter } from "@/components/DashboardFooter";
@@ -12,19 +13,43 @@ export default async function ProfilePage() {
   if (!user) redirect("/login");
 
   const email = user.email ?? "";
-  await supabase.from("users").upsert({ id: user.id, email }, { onConflict: "id" });
+  const meta = user.user_metadata as {
+    display_name?: string;
+    avatar_url?: string;
+  };
 
-  const meta = user.user_metadata as { display_name?: string } | undefined;
-  const displayName =
-    typeof meta?.display_name === "string" && meta.display_name.trim()
-      ? meta.display_name.trim()
-      : email.split("@")[0] || "Player";
+  const { data: existingRow } = await supabase
+    .from("users")
+    .select("steam_id, display_name")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  const resolvedDisplayName =
+    existingRow?.display_name?.trim() ||
+    displayNameFromUserMetadataOrEmail(meta, user.email);
+
+  await supabase.from("users").upsert(
+    {
+      id: user.id,
+      email,
+      display_name: resolvedDisplayName,
+      steam_id: existingRow?.steam_id ?? null
+    },
+    { onConflict: "id" }
+  );
 
   const { data: profile } = await supabase
     .from("users")
-    .select("steam_id")
+    .select("steam_id, display_name")
     .eq("id", user.id)
     .single();
+
+  const displayName = profile?.display_name?.trim() || resolvedDisplayName;
+
+  const avatarUrl =
+    typeof meta.avatar_url === "string" && meta.avatar_url.startsWith("http")
+      ? meta.avatar_url
+      : undefined;
 
   return (
     <div className="min-h-screen bg-surface text-on-surface">
@@ -32,6 +57,8 @@ export default async function ProfilePage() {
       <ProfileClient
         initialDisplayName={displayName}
         initialEmail={email}
+        initialAvatarUrl={avatarUrl}
+        userId={user.id}
         steamConnected={Boolean(profile?.steam_id)}
       />
       <DashboardFooter />
