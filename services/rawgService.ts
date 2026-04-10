@@ -9,6 +9,8 @@ export type RawgGameSummary = {
   slug: string;
   name: string;
   background_image: string | null;
+  /** RAWG release date (YYYY-MM-DD) when present. */
+  released: string | null;
   genres: RawgGenre[];
   added?: number;
   ratings_count?: number;
@@ -29,11 +31,16 @@ function mapSummary(r: Record<string, unknown> | undefined): RawgGameSummary | n
   if (!r || typeof r.id !== "number" || typeof r.slug !== "string" || typeof r.name !== "string") return null;
   const genres = (Array.isArray(r.genres) ? r.genres : []) as RawgGenre[];
   const ratings = Array.isArray(r.ratings) ? (r.ratings as RawgRatingBucket[]) : undefined;
+  const releasedRaw = r.released;
+  const released =
+    typeof releasedRaw === "string" && releasedRaw.trim() ? releasedRaw.trim() : null;
+
   return {
     id: r.id,
     slug: r.slug,
     name: r.name,
     background_image: (r.background_image as string | null | undefined) ?? null,
+    released,
     genres,
     added: r.added as number | undefined,
     ratings_count: r.ratings_count as number | undefined,
@@ -61,14 +68,17 @@ export async function getGameGenresByName(gameName: string): Promise<RawgGenre[]
   return match?.genres ?? [];
 }
 
-export async function getGamesByGenres(genreSlugs: string[], options?: { tags?: string }): Promise<RawgGame[]> {
+export async function getGamesByGenres(
+  genreSlugs: string[],
+  options?: { tags?: string; ordering?: string; pageSize?: number }
+): Promise<RawgGame[]> {
   if (genreSlugs.length === 0) return [];
 
   const url = new URL(`${BASE}/games`);
   url.searchParams.set("key", getApiKey());
   url.searchParams.set("genres", genreSlugs.join(","));
-  url.searchParams.set("ordering", "-added");
-  url.searchParams.set("page_size", "60");
+  url.searchParams.set("ordering", options?.ordering ?? "-added");
+  url.searchParams.set("page_size", String(options?.pageSize ?? 60));
   if (options?.tags) url.searchParams.set("tags", options.tags);
 
   const response = await fetch(url, { next: { revalidate: 60 * 60 } });

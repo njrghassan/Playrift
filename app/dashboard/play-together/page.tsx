@@ -1,7 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { DashboardNav } from "@/components/DashboardNav";
-import { DashboardFooter } from "@/components/DashboardFooter";
 import PlayTogetherClient from "@/components/PlayTogetherClient";
 import { displayNameFromUserMetadataOrEmail } from "@/lib/displayName";
 import { steamLibraryHours } from "@/lib/steamLibraryStats";
@@ -57,18 +55,14 @@ export default async function PlayTogetherPage() {
   const preferredAvatar = appAvatar || steamAvatar;
 
   return (
-    <div className="min-h-screen bg-surface text-on-surface">
-      <DashboardNav />
-      <PlayTogetherClient
-        steamConnected={Boolean(steamId)}
-        userDisplayName={displayName}
-        userAvatarUrl={preferredAvatar ?? undefined}
-        userLibrarySize={librarySize}
-        userTotalHours={totalHours}
-        userRecentHours={recentHours}
-        userRecCount={suggestions}
-      />
-      <DashboardFooter />
-    </div>
+    <PlayTogetherClient
+      steamConnected={Boolean(steamId)}
+      userDisplayName={displayName}
+      userAvatarUrl={preferredAvatar ?? undefined}
+      userLibrarySize={librarySize}
+      userTotalHours={totalHours}
+      userRecentHours={recentHours}
+      userRecCount={suggestions}
+    />
   );
 }

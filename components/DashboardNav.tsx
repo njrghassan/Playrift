@@ -33,17 +33,21 @@ export function DashboardNav() {
             <Link className="font-medium text-slate-400 transition-colors hover:text-slate-100" href="/#how">
               How it Works
             </Link>
-            <Link href="/dashboard" className={navClass(isDashboard)}>
+            <Link prefetch href="/dashboard" className={navClass(isDashboard)}>
               Dashboard
             </Link>
-            <Link href="/dashboard/play-together" className={navClass(isPlayTogether)}>
+            <Link
+              prefetch
+              href="/dashboard/play-together"
+              className={navClass(isPlayTogether)}
+            >
               Play together
             </Link>
           </div>
         </div>
         <div className="flex items-center gap-4">
           <SignOutButton />
-          <Link href="/dashboard/profile" className={navClass(isProfile)}>
+          <Link prefetch href="/dashboard/profile" className={navClass(isProfile)}>
             Profile
           </Link>
         </div>

@@ -1,8 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { displayNameFromUserMetadataOrEmail } from "@/lib/displayName";
 import { redirect } from "next/navigation";
-import { DashboardNav } from "@/components/DashboardNav";
-import { DashboardFooter } from "@/components/DashboardFooter";
 import ProfileClient from "@/components/ProfileClient";
 
 export default async function ProfilePage() {
@@ -52,16 +50,12 @@ export default async function ProfilePage() {
       : undefined;
 
   return (
-    <div className="min-h-screen bg-surface text-on-surface">
-      <DashboardNav />
-      <ProfileClient
-        initialDisplayName={displayName}
-        initialEmail={email}
-        initialAvatarUrl={avatarUrl}
-        userId={user.id}
-        steamConnected={Boolean(profile?.steam_id)}
-      />
-      <DashboardFooter />
-    </div>
+    <ProfileClient
+      initialDisplayName={displayName}
+      initialEmail={email}
+      initialAvatarUrl={avatarUrl}
+      userId={user.id}
+      steamConnected={Boolean(profile?.steam_id)}
+    />
   );
 }

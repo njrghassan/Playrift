@@ -15,6 +15,8 @@ export type RecommendedGame = {
   slug: string;
   name: string;
   background_image: string | null;
+  /** RAWG release date YYYY-MM-DD when known. */
+  released?: string | null;
   genres: { id: number; name: string; slug: string }[];
   score: number;
   reason: string;

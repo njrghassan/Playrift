@@ -174,7 +174,12 @@ function popularityOf(game: { added?: number; ratings_count?: number }) {
 export async function generateRecommendations(
   ownedGames: SteamOwnedGame[],
   blacklistNames: string[],
-  opts?: { maxResolvedSteamNames?: number }
+  opts?: {
+    maxResolvedSteamNames?: number;
+    maxResults?: number;
+    /** RAWG `/games` ordering, e.g. `-released` for newer titles first. */
+    genreGamesOrdering?: string;
+  }
 ): Promise<{
   recommendations: RecommendedGame[];
   recentTopGenres: string[];
@@ -196,7 +201,9 @@ export async function generateRecommendations(
   const recentTopGenres = topGenres(recentCount);
   const candidateGenres = Array.from(new Set([...recentTopGenres, ...longTopGenres]));
 
-  const candidates = await getGamesByGenres(candidateGenres);
+  const candidates = await getGamesByGenres(candidateGenres, {
+    ordering: opts?.genreGamesOrdering
+  });
   const blacklist = new Set(blacklistNames.map((n) => n.toLowerCase()));
 
   const recommendations = candidates
@@ -225,7 +232,7 @@ export async function generateRecommendations(
       if (popDiff !== 0) return popDiff;
       return b.score - a.score;
     })
-    .slice(0, 20);
+    .slice(0, opts?.maxResults ?? 20);
 
   return { recommendations, recentTopGenres, longTopGenres };
 }

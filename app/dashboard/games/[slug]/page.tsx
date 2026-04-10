@@ -1,8 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { DashboardNav } from "@/components/DashboardNav";
-import { DashboardFooter } from "@/components/DashboardFooter";
 import { RawgReviewBlock } from "@/components/RawgReviewBlock";
 import { getCachedGameDetailsBySlug } from "@/lib/cachedGameDetails";
 
@@ -61,9 +59,7 @@ export default async function GameDetailPage({ params }: { params: Promise<{ slu
   const criticLinks = buildCriticLinks(game.name, game.metacritic_url);
 
   return (
-    <div className="min-h-screen bg-surface text-on-surface">
-      <DashboardNav />
-      <main className="mx-auto max-w-[1100px] px-8 py-10">
+    <main className="mx-auto max-w-[1100px] px-8 py-10">
         <Link
           href="/dashboard"
           className="inline-block text-sm font-medium text-primary underline-offset-2 hover:underline"
@@ -305,8 +301,6 @@ export default async function GameDetailPage({ params }: { params: Promise<{ slu
             </div>
           </section>
         ) : null}
-      </main>
-      <DashboardFooter />
-    </div>
+    </main>
   );
 }
