@@ -95,6 +95,30 @@ export async function getGameGenresByName(gameName: string): Promise<RawgGenre[]
   return match?.genres ?? [];
 }
 
+/**
+ * Recently added to the RAWG catalog (strong “what’s hot” signal for marketing).
+ * Returns [] if `RAWG_API_KEY` is unset or the request fails—safe for the public homepage.
+ */
+export async function fetchPopularGamesRecent(limit = 8): Promise<RawgGameSummary[]> {
+  const key = process.env.RAWG_API_KEY;
+  if (!key) return [];
+
+  const url = new URL(`${BASE}/games`);
+  url.searchParams.set("key", key);
+  url.searchParams.set("ordering", "-added");
+  url.searchParams.set("page_size", String(Math.min(40, Math.max(1, limit))));
+
+  try {
+    const response = await fetch(url, { next: { revalidate: 60 * 30 } });
+    if (!response.ok) return [];
+    const data = await response.json();
+    const results = (data?.results ?? []) as Record<string, unknown>[];
+    return results.map((row) => mapSummary(row)).filter(Boolean) as RawgGameSummary[];
+  } catch {
+    return [];
+  }
+}
+
 export async function getGamesByGenres(
   genreSlugs: string[],
   options?: { tags?: string; ordering?: string; pageSize?: number; parentPlatforms?: string }
