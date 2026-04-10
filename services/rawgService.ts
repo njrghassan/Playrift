@@ -169,6 +169,7 @@ export type RawgGameDetails = {
   background_image_additional: string | null;
   website: string | null;
   reddit_url: string | null;
+  metacritic_url: string | null;
   metacritic: number | null;
   playtime: number | null;
   genres: RawgGenre[];
@@ -274,6 +275,7 @@ export async function getGameDetailsBySlug(slug: string): Promise<RawgGameDetail
     background_image_additional: (g.background_image_additional as string | null) ?? null,
     website: normalizeExternalUrl(g.website as string | undefined),
     reddit_url: normalizeExternalUrl(g.reddit_url as string | undefined),
+    metacritic_url: normalizeExternalUrl(g.metacritic_url as string | undefined),
     metacritic: (g.metacritic as number | null) ?? null,
     playtime: (g.playtime as number | null) ?? null,
     genres,

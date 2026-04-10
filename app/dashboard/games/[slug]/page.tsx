@@ -16,12 +16,49 @@ function plainDescription(raw: string): string {
     .trim();
 }
 
+function buildCriticLinks(gameName: string, metacriticUrl: string | null) {
+  const q = gameName.trim();
+  const google = (site: string) =>
+    `https://www.google.com/search?q=${encodeURIComponent(`site:${site} ${q} review`)}`;
+  return [
+    {
+      name: "Metacritic",
+      href: metacriticUrl ?? google("metacritic.com"),
+      note: "Critic aggregate + outlet reviews",
+      icon: "M",
+      iconClass: "bg-[#66cc33] text-black"
+    },
+    {
+      name: "OpenCritic",
+      href: google("opencritic.com"),
+      note: "Curated critic reviews and averages",
+      icon: "OC",
+      iconClass: "bg-[#f37021] text-white"
+    },
+    {
+      name: "IGN Reviews",
+      href: google("ign.com"),
+      note: "Editorial review coverage",
+      icon: "IGN",
+      iconClass: "bg-[#e60012] text-white"
+    },
+    {
+      name: "PC Gamer Reviews",
+      href: google("pcgamer.com"),
+      note: "PC-focused review writeups",
+      icon: "PC",
+      iconClass: "bg-[#ff4d4d] text-white"
+    }
+  ];
+}
+
 export default async function GameDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const game = await getCachedGameDetailsBySlug(slug);
   if (!game) notFound();
 
   const about = plainDescription(game.description_raw).slice(0, 4000);
+  const criticLinks = buildCriticLinks(game.name, game.metacritic_url);
 
   return (
     <div className="min-h-screen bg-surface text-on-surface">
@@ -88,6 +125,37 @@ export default async function GameDetailPage({ params }: { params: Promise<{ slu
             positiveOverride={game.positive_review_percent}
           />
         </div>
+
+        <section className="mt-8 rounded-xl bg-surface-container-low p-6">
+          <h2 className="font-label text-sm uppercase tracking-widest text-secondary-fixed-dim">
+            Critic reviews
+          </h2>
+          <p className="mt-2 text-xs text-on-surface-variant">
+            External editorial sources for in-depth reviews.
+          </p>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            {criticLinks.map((link) => (
+              <a
+                key={link.name}
+                href={link.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-lg bg-surface-container px-4 py-3 ring-1 ring-outline-variant/20 transition hover:ring-primary/40"
+              >
+                <div className="flex items-center gap-3">
+                  <span
+                    className={`inline-flex min-w-8 items-center justify-center rounded-md px-2 py-1 text-[10px] font-black uppercase tracking-wide ${link.iconClass}`}
+                    aria-hidden
+                  >
+                    {link.icon}
+                  </span>
+                  <div className="text-sm font-semibold text-on-surface">{link.name}</div>
+                </div>
+                <div className="mt-1 text-xs text-on-surface-variant">{link.note}</div>
+              </a>
+            ))}
+          </div>
+        </section>
 
         {(game.pc_requirements_minimum || game.pc_requirements_recommended) && (
           <section className="mt-8 rounded-xl bg-surface-container-low p-6">
